@@ -43,7 +43,7 @@ with st.sidebar:
     
     enter()
 
-    # logo_link('', r'img\logo-jabar.png', 125)
+    # logo_link('', r'img/logo-jabar.png', 125)
     enter()
     horizontal_line()
 
@@ -75,7 +75,7 @@ if selected == 'Home':
     
     enter()
      
-    df = pd.read_csv(r'data\csv\df_metrics.csv')
+    df = pd.read_csv(r'data/csv/df_metrics.csv')
     
     def metric_cards_1():
         _, _, metric_idx_p1, metric_idx_penduduk, metric_idx_p2, _, _ = st.columns([2,2,3,3,3,2,2])                
@@ -258,7 +258,7 @@ if selected == 'Home':
     
     st.header('Judul ...')
     
-    df = pd.read_csv(r'data\csv\df_metrics.csv')  
+    df = pd.read_csv(r'data/csv/df_metrics.csv')  
     df.drop(['Tingkat Angkatan Kerja (%)', 'Tingkat Pengangguran (%)', 'Jumlah Penduduk Miskin'], inplace=True, axis=1)
     df.columns = df.columns.str.replace(' ', '_')
     df = df[df['Tahun'] == 2022]
@@ -302,7 +302,7 @@ if selected == 'IPM per Kategori':
                
 if selected == 'Trend IHK Kategori':
     
-    df = pd.read_csv(r'data\csv\Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')
+    df = pd.read_csv(r'data/csv/Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')
     df['Bulan_Tahun'] = pd.to_datetime(df['Bulan_Tahun'], format='%B-%Y')
     df = df.sort_values('Bulan_Tahun', ascending=True).reset_index(drop=True)
     
@@ -336,9 +336,9 @@ if selected == 'Trend IHK Kategori':
     st_echarts(options=option, height="500px")   
      
 if selected == 'Radar Chart (Nivo)':
-    df = pd.read_csv(r"data\csv\df_merge_idx.csv")
-    df_jk = pd.read_csv(r'data\csv\Proporsi_JK_Pekerja_Formal_Informal_2018_2023.csv')
-    df_tipe_daerah = pd.read_csv(r'data\csv\Proporsi_Daerah_Pekerja_Formal_Informal_2018_2023.csv')
+    df = pd.read_csv(r"data/csv/df_merge_idx.csv")
+    df_jk = pd.read_csv(r'data/csv/Proporsi_JK_Pekerja_Formal_Informal_2018_2023.csv')
+    df_tipe_daerah = pd.read_csv(r'data/csv/Proporsi_Daerah_Pekerja_Formal_Informal_2018_2023.csv')
 
     colored_header(
         label="Regions Index Value per Year (Radar Chart)",
@@ -641,7 +641,7 @@ if selected == 'Radar Chart (Nivo)':
         
 if selected == 'Data Preview':
     
-    df = pd.read_csv(r'data\csv\Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')  
+    df = pd.read_csv(r'data/csv/Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')  
 
                 
     # option = {
