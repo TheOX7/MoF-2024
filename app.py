@@ -45,7 +45,7 @@ with st.sidebar:
     
     enter()
 
-    logo_link('', 'D:\GitHub\TheOX7\Data Jabar - MoF\streamlit-app\logo-jabar.png', 125)
+    logo_link('', 'img\logo-jabar.png', 125)
     enter()
     horizontal_line()
 
@@ -71,32 +71,32 @@ if selected == 'Home':
     
     st.markdown("""
         <div style='text-align: center; font-size:32px'>
-            <b> Metrics for Latest Year (2023) vs Last Year (2022)</b>
+            <b> Metrics Year 2022 vs 2021</b>
         </div>
     """, unsafe_allow_html=True)   
     
     enter()
      
-    df = pd.read_csv('D:\GitHub\TheOX7\Data Jabar - MoF\data\csv\df_metrics.csv')
+    df = pd.read_csv('data\csv\df_metrics.csv')
     
     def metric_cards_1():
         _, _, metric_idx_p1, metric_idx_penduduk, metric_idx_p2, _, _ = st.columns([2,2,3,3,3,2,2])                
         
         # Indeks Kedalaman Kemiskinan (P1)
-        idx_before = df[df['Tahun'] == df['Tahun'].max()-2]['Indeks Kedalaman Kemiskinan'].mean()
-        idx_latest = df[df['Tahun'] == df['Tahun'].max()-1]['Indeks Kedalaman Kemiskinan'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Indeks Kedalaman Kemiskinan'].mean()
+        idx_latest = df[df['Tahun'] == 2022]['Indeks Kedalaman Kemiskinan'].mean()
         delta_idx = idx_latest - idx_before
         metric_idx_p1.metric(label="Indeks Kedalaman Kemiskinan (P1)", value=round(idx_latest, 2), delta=round(delta_idx, 2))
         
         # Indeks Keparahan Kemiskinan (P2)
-        idx_before = df[df['Tahun'] == df['Tahun'].max()-2]['Indeks Keparahan Kemiskinan'].mean()
-        idx_latest = df[df['Tahun'] == df['Tahun'].max()-1]['Indeks Keparahan Kemiskinan'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Indeks Keparahan Kemiskinan'].mean()
+        idx_latest = df[df['Tahun'] == 2022]['Indeks Keparahan Kemiskinan'].mean()
         delta_idx = idx_latest - idx_before
         metric_idx_p2.metric(label="Indeks Keparahan Kemiskinan (P2)", value=round(idx_latest, 2), delta=round(delta_idx, 2))
         
         # Jumlah Penduduk Miskin
-        idx_before = df[df['Tahun'] == df['Tahun'].max()-2]['Jumlah Penduduk Miskin'].mean()
-        idx_latest = df[df['Tahun'] == df['Tahun'].max()-1]['Jumlah Penduduk Miskin'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Jumlah Penduduk Miskin'].mean()
+        idx_latest = df[df['Tahun'] == 2022]['Jumlah Penduduk Miskin'].mean()
         delta_idx = idx_latest - idx_before
         metric_idx_penduduk.metric(label="Jumlah Penduduk Miskin (Ribu)", value=round(idx_latest, 2), delta=round(delta_idx, 2))
 
@@ -106,26 +106,26 @@ if selected == 'Home':
         _, metric_idx_kesehatan, metric_ipm, metric_idx_pendidikan, metric_idx_pengeluaran, _ = st.columns([1,1,1,1,1,1])                
         
         # Indeks Kesehatan
-        idx_before = df[df['Tahun'] == df['Tahun'].max()-2]['Indeks Kesehatan'].mean()
-        idx_latest = df[df['Tahun'] == df['Tahun'].max()-1]['Indeks Kesehatan'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Indeks Kesehatan'].mean()
+        idx_latest = df[df['Tahun'] == 2022]['Indeks Kesehatan'].mean()
         delta_idx = idx_latest - idx_before
         metric_idx_kesehatan.metric(label="Indeks Kesehatan", value=round(idx_latest, 2), delta=round(delta_idx, 2))
         
         # Indeks Pembangunan Manusia
-        idx_before = df[df['Tahun'] == df['Tahun'].max()-2]['Indeks Pembangunan Manusia'].mean()
-        idx_latest = df[df['Tahun'] == df['Tahun'].max()-1]['Indeks Pembangunan Manusia'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Indeks Pembangunan Manusia'].mean()
+        idx_latest = df[df['Tahun'] == 2022]['Indeks Pembangunan Manusia'].mean()
         delta_idx = idx_latest - idx_before
         metric_ipm.metric(label="Indeks Pembangunan Manusia", value=round(idx_latest, 2), delta=round(delta_idx, 2))
         
         # Indeks Pendidikan
-        idx_before = df[df['Tahun'] == df['Tahun'].max()-2]['Indeks Pendidikan'].mean()
-        idx_latest = df[df['Tahun'] == df['Tahun'].max()-1]['Indeks Pendidikan'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Indeks Pendidikan'].mean()
+        idx_latest = df[df['Tahun'] == 2022]['Indeks Pendidikan'].mean()
         delta_idx = idx_latest - idx_before
         metric_idx_pendidikan.metric(label="Indeks Pendidikan", value=round(idx_latest, 2), delta=round(delta_idx, 2))
         
         # Indeks Pengeluaran
-        idx_before = df[df['Tahun'] == df['Tahun'].max()-2]['Indeks Pengeluaran'].mean()
-        idx_latest = df[df['Tahun'] == df['Tahun'].max()-1]['Indeks Pengeluaran'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Indeks Pengeluaran'].mean()
+        idx_latest = df[df['Tahun'] == 2022]['Indeks Pengeluaran'].mean()
         delta_idx = idx_latest - idx_before
         metric_idx_pengeluaran.metric(label="Indeks Pengeluaran", value=round(idx_latest, 2), delta=round(delta_idx, 2))
         
@@ -260,7 +260,7 @@ if selected == 'Home':
     
     st.header('Judul ...')
     
-    df = pd.read_csv('D:\GitHub\TheOX7\Data Jabar - MoF\data\csv\df_metrics.csv')  
+    df = pd.read_csv('data\csv\df_metrics.csv')  
     df.drop(['Tingkat Angkatan Kerja (%)', 'Tingkat Pengangguran (%)', 'Jumlah Penduduk Miskin'], inplace=True, axis=1)
     df.columns = df.columns.str.replace(' ', '_')
     df = df[df['Tahun'] == 2022]
@@ -304,7 +304,7 @@ if selected == 'IPM per Kategori':
                
 if selected == 'Trend IHK Kategori':
     
-    df = pd.read_csv('D:\GitHub\TheOX7\Data Jabar - MoF\data\csv\Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')
+    df = pd.read_csv('data\csv\Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')
     df['Bulan_Tahun'] = pd.to_datetime(df['Bulan_Tahun'], format='%B-%Y')
     df = df.sort_values('Bulan_Tahun', ascending=True).reset_index(drop=True)
     
@@ -338,9 +338,9 @@ if selected == 'Trend IHK Kategori':
     st_echarts(options=option, height="500px")   
      
 if selected == 'Radar Chart (Nivo)':
-    df = pd.read_csv("D:\GitHub\TheOX7\Data Jabar - MoF\data\csv\df_merge_idx.csv")
-    df_jk = pd.read_csv('D:\GitHub\TheOX7\Data Jabar - MoF\data\csv\Proporsi_JK_Pekerja_Formal_Informal_2018_2023.csv')
-    df_tipe_daerah = pd.read_csv('D:\GitHub\TheOX7\Data Jabar - MoF\data\csv\Proporsi_Daerah_Pekerja_Formal_Informal_2018_2023.csv')
+    df = pd.read_csv("data\csv\df_merge_idx.csv")
+    df_jk = pd.read_csv('data\csv\Proporsi_JK_Pekerja_Formal_Informal_2018_2023.csv')
+    df_tipe_daerah = pd.read_csv('data\csv\Proporsi_Daerah_Pekerja_Formal_Informal_2018_2023.csv')
 
     colored_header(
         label="Regions Index Value per Year (Radar Chart)",
@@ -643,7 +643,7 @@ if selected == 'Radar Chart (Nivo)':
         
 if selected == 'Data Preview':
     
-    df = pd.read_csv('D:\GitHub\TheOX7\Data Jabar - MoF\data\csv\Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')  
+    df = pd.read_csv('data\csv\Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')  
 
                 
     # option = {
