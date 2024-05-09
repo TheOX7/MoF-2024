@@ -43,7 +43,7 @@ with st.sidebar:
     
     enter()
 
-    logo_link('', r'img\logo-jabar.png', 125)
+    # logo_link('', r'img\logo-jabar.png', 125)
     enter()
     horizontal_line()
 
