@@ -7,8 +7,6 @@ from streamlit_extras.colored_header import colored_header
 from streamlit_elements import elements, mui, nivo
 from streamlit_echarts import st_echarts
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
-import altair as alt
-import plotly.express as px
 
 def horizontal_line():
     st.markdown('<hr>', unsafe_allow_html=True)

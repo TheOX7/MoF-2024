@@ -1,0 +1,7 @@
+streamlit
+pandas
+streamlit_option_menu
+streamlit_extras
+streamlit_elements
+streamlit_echarts
+st_aggrid
