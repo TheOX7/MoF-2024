@@ -5,7 +5,9 @@ import base64
 from streamlit_extras.metric_cards import style_metric_cards
 from streamlit_extras.colored_header import colored_header
 from streamlit_elements import elements, mui, nivo
-from streamlit_echarts import st_echarts
+from streamlit_echarts import st_echarts 
+import streamlit_echarts
+# from streamlit_echarts import JsCode 
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 
 def horizontal_line():
@@ -75,7 +77,7 @@ if selected == 'Home':
     
     enter()
      
-    df = pd.read_csv(r'data/csv/df_metrics.csv')
+    df = pd.read_csv(r'data/csv/metrics.csv')
     
     def metric_cards_1():
         _, _, metric_idx_p1, metric_idx_penduduk, metric_idx_p2, _, _ = st.columns([2,2,3,3,3,2,2])                
@@ -144,44 +146,29 @@ if selected == 'Home':
     """, unsafe_allow_html=True)   
     
     enter()
-     
-    _, col_filter_wilayah, col_filter_features, _ = st.columns([1,3,3,1])
-    
+          
+    df = pd.read_csv(r'data/csv/metrics.csv')
+
+    _, col_filter_wilayah, col_filter_features, _ = st.columns([1, 3, 3, 1])
+
     with col_filter_wilayah:
-        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Kota Bandung', 'Bandung'])
+        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique())
         filtered_df = df[df['Wilayah Jawa Barat'].isin(selected_regions)]
+        filtered_df = filtered_df[~filtered_df['Tahun'].isin([2015, 2016, 2023])]
 
-    # with col_filter_year:
-    #     selected_year = st.slider("Select a range of years",
-    #                        2017, 2022, (2017, 2022))
-    #     filtered_df = filtered_df[(df['Tahun'] >= selected_year[0]) & (df['Tahun'] <= selected_year[1])]
-    
+    mean_penduduk_miskin = filtered_df.groupby('Tahun')['Jumlah Penduduk Miskin'].mean().tolist()
+
     with col_filter_features:
-        selected_features_columns = st.multiselect('Select features for line chart', 
-                                            ['Indeks Kesehatan', 'Indeks Pembangunan Manusia','Indeks Pendidikan', 'Indeks Pengeluaran', 'Indeks Kedalaman Kemiskinan', 'Indeks Keparahan Kemiskinan'], 
-                                            default=['Indeks Kesehatan', 'Indeks Pembangunan Manusia','Indeks Pendidikan', 'Indeks Pengeluaran',])
+        selected_features_columns = st.multiselect('Select features for line chart',
+                                                ['Indeks Kesehatan', 'Indeks Pembangunan Manusia',
+                                                    'Indeks Pendidikan', 'Indeks Pengeluaran'],
+                                                default=['Indeks Kesehatan', 'Indeks Pembangunan Manusia',
+                                                            'Indeks Pendidikan', 'Indeks Pengeluaran'])
 
-    # Filter year from 2017 to 2023
-    filtered_df = filtered_df[~filtered_df['Tahun'].isin([2015,2016,2023])]
-    
     # Remove duplicate values from 'Tahun' column
     filtered_df = filtered_df.drop_duplicates(subset=['Tahun'])
     x_axis_data = filtered_df['Tahun'].tolist()
 
-    # Generate series for line chart
-    line_series = []
-    for column in selected_features_columns:
-        series_data = {
-            "name": column,
-            "type": "line",
-            "yAxisIndex": 1,
-            "data": filtered_df[column].values.tolist(),
-            "lineStyle": {"width": 4},
-            "symbolSize": 8,
-        }
-        line_series.append(series_data)
-
-    # ECharts options
     options = {
         "tooltip": {
             "trigger": "axis",
@@ -190,11 +177,11 @@ if selected == 'Home':
             "textStyle": {"color": "white"}
         },
         "legend": {
-            "data": ["Jumlah Penduduk Miskin", "Indeks Kesehatan", "Indeks Pembangunan Manusia", "Indeks Pendidikan", "Indeks Pengeluaran", "Indeks Kedalaman Kemiskinan", "Indeks Keparahan Kemiskinan"],
+            "data": ["Jumlah Penduduk Miskin"] + selected_features_columns,
             "textStyle": {
-                            "color": "white",
-                            "fontSize": 14,
-                        },
+                "color": "white",
+                "fontSize": 14,
+            },
             "orient": "horizontal"
         },
         "xAxis": [
@@ -211,14 +198,14 @@ if selected == 'Home':
                 "type": "value",
                 "name": "Penduduk Miskin",
                 "min": 0,
-                "max": 300,
-                "interval": 50,
+                "max": 500,
+                "interval": 100,
                 "axisLabel": {"formatter": "{value} Jiwa", "color": "white"},
                 "nameTextStyle": {
-                                "color": "white",
-                                "fontWeight": "bolder",
-                                "align": "right"
-                                },
+                    "color": "white",
+                    "fontWeight": "bolder",
+                    "align": "right"
+                },
                 "axisTick": {
                     "alignWithLabel": True
                 },
@@ -232,33 +219,45 @@ if selected == 'Home':
                 "interval": 20,
                 "axisLabel": {"formatter": "{value}", "color": "white"},
                 "nameTextStyle": {
-                                "color": "white",
-                                "fontWeight": "bolder",
-                                "align": "left"
-                                },     
+                    "color": "white",
+                    "fontWeight": "bolder",
+                    "align": "left"
+                },
                 "axisTick": {
                     "alignWithLabel": True
-                },       
+                },
             },
         ],
         "series": [
             {
                 "name": "Jumlah Penduduk Miskin",
                 "type": "bar",
-                "data": filtered_df['Jumlah Penduduk Miskin'].values.tolist(),
+                "data": mean_penduduk_miskin,
             },
-            *line_series  # Menambahkan series untuk line chart
         ],
     }
 
-    st_echarts(options, height="400px")    
-    
+    # Generate series for line chart based on selected features
+    for column in selected_features_columns:
+        mean_values = filtered_df.groupby('Tahun')[column].mean().tolist()
+        series_data = {
+            "name": column,
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": mean_values,
+            "lineStyle": {"width": 4},
+            "symbolSize": 8,
+        }
+        options["series"].append(series_data)
+
+    st_echarts(options, height="400px")
+
     horizontal_line()
     enter() 
     
     st.header('Judul ...')
     
-    df = pd.read_csv(r'data/csv/df_metrics.csv')  
+    df = pd.read_csv(r'data/csv/metrics.csv')  
     df.drop(['Tingkat Angkatan Kerja (%)', 'Tingkat Pengangguran (%)', 'Jumlah Penduduk Miskin'], inplace=True, axis=1)
     df.columns = df.columns.str.replace(' ', '_')
     df = df[df['Tahun'] == 2022]
@@ -291,6 +290,27 @@ if selected == 'Home':
     grid_options['defaultColDef']['cellStyle'] = cellStyle
     AgGrid(df, gridOptions=grid_options, allow_unsafe_jscode=True, key='grid1')
     
+    enter()
+    
+    df = pd.read_csv('data/csv/df_scatter.csv')
+    scatter_data = df[(df['Kategori'] == 'Pengeluaran Per Kapita')]
+
+    option = {
+        "xAxis": {"name": "IHK Value"},
+        "yAxis": {"name": "Indeks Pendidikan"},
+        "tooltip": {"trigger": "axis", 
+                    "formatter": streamlit_echarts.JsCode("function (params) { return 'IHK Value: ' + params[0].data[0] + '<br/>Indeks Pendidikan: ' + params[0].data[1]; }").js_code},
+        "series": [
+            {
+                "symbolSize": 14,
+                "data": scatter_data[['Value', 'Indeks Pendidikan']].values.tolist(),
+                "type": "scatter"
+            }
+        ]
+    }
+
+    st_echarts(options=option, height="500px")
+    
     
     
 if selected == 'IPM per Kategori':  
@@ -299,41 +319,146 @@ if selected == 'IPM per Kategori':
         description="",
         color_name="violet-70",
     )
-               
-if selected == 'Trend IHK Kategori':
     
-    df = pd.read_csv(r'data/csv/Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')
-    df['Bulan_Tahun'] = pd.to_datetime(df['Bulan_Tahun'], format='%B-%Y')
-    df = df.sort_values('Bulan_Tahun', ascending=True).reset_index(drop=True)
+    df = pd.read_csv('data/csv/IPM_Menurut_Komponen_2015_2023.csv')
+    df = df[df['Kategori'] != 'Pengeluaran Per Kapita']
     
-    # Convert 'Bulan_Tahun' to datetime
-    df['Bulan_Tahun'] = pd.to_datetime(df['Bulan_Tahun'])
-
-    # Extract year from 'Bulan_Tahun'
-    df['Year'] = df['Bulan_Tahun'].dt.year.astype(str)
-
-    # Preprocess data
-    xAxis_data = df['Year'].unique().tolist()
-    series_data = []
-    for kelompok in df['Kelompok Pengeluaran IHK'].unique():
-        series_data.append({
-            "name": kelompok,
-            "type": "line",
-            "data": df[df['Kelompok Pengeluaran IHK'] == kelompok].groupby('Year')['IHK Value'].mean().tolist()
+    data_series = []
+    for kategori, group in df.groupby('Kategori'):
+        data_series.append({
+            "name": kategori,
+            "type": "bar",
+            "barGap": 0,
+            "data": list(group['Value']),
+            "emphasis": {"focus": "series"},
+            "label": {
+                "show": True,
+                "position": "insideBottom",
+                "distance": 15,
+                "align": "left",
+                "verticalAlign": "middle",
+                "rotate": 90,
+                # "formatter": "{c}  {{a}}",
+                "fontSize": 16,
+                "rich": {
+                    "name": kategori
+                }
+            },
         })
 
-    # ECharts option
-    option = {
-        "title": {"text": "IHK Value by Year"},
-        "tooltip": {"trigger": "axis"},
-        "legend": {"data": df['Kelompok Pengeluaran IHK'].unique().tolist()},
-        "xAxis": {"type": "category", "boundaryGap": False, "data": xAxis_data},
-        "yAxis": {"type": "value"},
-        "series": series_data
+    options = {
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
+        "legend": {"data": df['Kategori'].unique().tolist(),
+                    "textStyle": {"fontSize": 14, "color": "white"}
+                   },
+        "xAxis": [{"type": "category", 
+                   "axisTick": {"show": False}, 
+                   "data": df['Tahun'].unique().tolist(), 
+                    "axisLabel": {"fontSize": 14, "color": "white"}}],
+        "yAxis": [{"type": "value", 
+                   "axisLabel": {"fontSize": 14, "color": "white"}}],
+        "series": data_series,
+        "color": ["#1f77b4", "#ff7f0e", "#2ca02c"],
+        "label": {"show": True, "color": "#FFFFFF"}
     }
 
-    # Render ECharts
-    st_echarts(options=option, height="500px")   
+    st_echarts(options, height="600px")
+
+
+    with st.container():
+        df = pd.read_csv('data/csv/IHK per Pengeluaran.csv')
+
+        # Group by Kelompok Pengeluaran IHK and Tahun and calculate the mean IHK Value
+        df_grouped = df.pivot_table(index="Kelompok Pengeluaran IHK", columns="Tahun", values="IHK Value", aggfunc="mean")
+
+        # Calculate the mean and round the values
+        df_grouped["mean"] = df_grouped.mean(axis=1).round(2)
+        df_grouped = df_grouped.sort_values(by="mean", ascending=True)
+        df_grouped = df_grouped.drop(columns="mean")
+
+        option = {
+            "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
+            "legend": {"textStyle": {"fontSize": 14, "color": "white"}},
+            "grid": {"left": "3%", "right": "4%", "bottom": "3%", "containLabel": True},
+            "xAxis": {"type": "value", "axisLabel": {"fontSize": 12, "color": "white"}},
+            "yAxis": {"type": "category", "data": df_grouped.index.tolist(), "axisLabel": {"fontSize": 12, "color": "white"}},
+            "series": [
+                {"name": str(year), 
+                "emphasis": {"focus": "series"},
+                 "type": "bar", "stack": "mean", "label": {"show": True}, "data": df_grouped[year].round(2).tolist()}
+                for year in df_grouped.columns
+            ],
+            "label": {"show": True, "color": "black", "fontSize":14, "fontWeight":"bold"}
+        }
+
+        st_echarts(option, height=600)
+             
+if selected == 'Trend IHK Kategori':
+
+    df = pd.read_csv(r'data/csv/df_scatter.csv')
+    
+    pengeluaran_per_kapita = df[df['Kategori'] == 'Pengeluaran Per Kapita']
+    indeks_pendidikan = df[df['Kategori'] == 'Indeks Pendidikan']
+
+    merged_data = pd.merge(pengeluaran_per_kapita, indeks_pendidikan, on=['Wilayah Jawa Barat', 'Tahun'], suffixes=('_pengeluaran', '_pendidikan'))
+    values_pengeluaran = merged_data['Value_pengeluaran'].tolist()
+    values_pendidikan = merged_data['Value_pendidikan'].tolist()
+
+    option = {
+        "title": {
+            "text": "Pengeluaran Per Kapita vs Indeks Pendidikan"
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "formatter": "Pengeluaran Per Kapita: {c0} <br/> Indeks Pendidikan: {c1}"
+        },
+        "legend": {
+            "data": ["Pengeluaran Per Kapita", "Indeks Pendidikan"]
+        },
+        "xAxis": {
+            "type": "value",
+            "scale": True,
+            "axisLabel": {
+                "formatter": "{value}"
+            },
+            "splitLine": {
+                "show": False
+            }
+        },
+        "yAxis": {
+            "type": "value",
+            "scale": True,
+            "axisLabel": {
+                "formatter": "{value}"
+            },
+            "splitLine": {
+                "show": False
+            }
+        },
+        "series": [
+            {
+                "name": "Pengeluaran Per Kapita",
+                "type": "scatter",
+                "data": [[values_pengeluaran[i], values_pendidikan[i]] for i in range(len(values_pengeluaran))],
+                "markPoint": {
+                    "data": [
+                        {"type": "max", "name": "Max"},
+                        {"type": "min", "name": "Min"}
+                    ]
+                },
+                "markLine": {
+                    "lineStyle": {
+                        "type": "solid"
+                    },
+                    "data": [{"type": "average", "name": "AVG"}, {"xAxis": 160}]
+                }
+            }
+        ]
+    }
+
+    # Menampilkan plot menggunakan st_echarts
+    st_echarts(options=option, height="600px")
+
      
 if selected == 'Radar Chart (Nivo)':
     df = pd.read_csv(r"data/csv/df_merge_idx.csv")
@@ -430,6 +555,7 @@ if selected == 'Radar Chart (Nivo)':
         color_name="orange-70",
     )
     
+    enter()
     
     col_pie_jk, col_pie_tipe_daerah = st.columns(2)
     
@@ -439,39 +565,6 @@ if selected == 'Radar Chart (Nivo)':
         informal_pria_value = filtered_df_jk[filtered_df_jk['Jenis Kelamin'] == 'Laki-laki']['Proporsi Informal (%)'].values[0]
         formal_perempuan_value = filtered_df_jk[filtered_df_jk['Jenis Kelamin'] == 'Perempuan']['Proporsi Formal (%)'].values[0]
         informal_perempuan_value = filtered_df_jk[filtered_df_jk['Jenis Kelamin'] == 'Perempuan']['Proporsi Informal (%)'].values[0]
-        
-        options_pie_jk = {
-            "tooltip": {"trigger": "item"},
-            "legend": {"top": "5%", "left": "center"},
-            "series": [
-                    {
-                        "name": "Jenis Kelamin",
-                        "type": "pie",
-                        "radius": ["40%", "70%"],
-                        "avoidLabelOverlap": False,
-                        "itemStyle": {
-                            "borderRadius": 10,
-                            "borderColor": "#fff",
-                            "borderWidth": 2,
-                        },
-                        "label": {"show": False, "position": "center"},
-                        "emphasis": {
-                            "label": {"show": True, "fontSize": "20", "fontWeight": "bold"}
-                        },
-                        "labelLine": {"show": False},
-                        "data": [
-                            {"value": formal_pria_value, "name": "Formal Pria"},
-                            {"value": informal_pria_value, "name": "Informal Pria"},
-                            {"value": formal_perempuan_value, "name": "Formal Wanita"},
-                            {"value": informal_perempuan_value, "name": "Informal Wanita"},
-                        ],
-                    }
-                ],
-            }
-        
-        st_echarts(
-            options=options_pie_jk, height="500px",
-        )
         
         option_pie_jk = {
             'backgroundColor': '#0E1117',
@@ -535,6 +628,9 @@ if selected == 'Radar Chart (Nivo)':
         st_echarts(
             options=option_pie_jk, height="500px",
         )
+        
+        with st.expander('Insights'):
+            st.write('')
             
     with col_pie_tipe_daerah:
         
@@ -542,39 +638,6 @@ if selected == 'Radar Chart (Nivo)':
         informal_perkotaan_value = filtered_df_tipe_daerah[filtered_df_tipe_daerah['Tipe Daerah'] == 'Perkotaan']['Proporsi Informal (%)'].values[0]
         formal_perdesaan_value = filtered_df_tipe_daerah[filtered_df_tipe_daerah['Tipe Daerah'] == 'Perdesaan']['Proporsi Formal (%)'].values[0]
         informal_perdesaan_value = filtered_df_tipe_daerah[filtered_df_tipe_daerah['Tipe Daerah'] == 'Perdesaan']['Proporsi Informal (%)'].values[0]
-
-        options_pie_jk = {
-            "tooltip": {"trigger": "item"},
-            "legend": {"top": "5%", "left": "center"},
-            "series": [
-                    {
-                        "name": "Jenis Kelamin",
-                        "type": "pie",
-                        "radius": ["40%", "70%"],
-                        "avoidLabelOverlap": False,
-                        "itemStyle": {
-                            "borderRadius": 10,
-                            "borderColor": "#fff",
-                            "borderWidth": 2,
-                        },
-                        "label": {"show": False, "position": "center"},
-                        "emphasis": {
-                            "label": {"show": True, "fontSize": "20", "fontWeight": "bold"}
-                        },
-                        "labelLine": {"show": False},
-                        "data": [
-                            {"value": formal_perkotaan_value, "name": "Perkotaan (Formal)"},
-                            {"value": informal_perkotaan_value, "name": "Perkotaan (Informal)"},
-                            {"value": formal_perdesaan_value, "name": "Pedesaan (Formal)", 'itemStyle': {'color': '#712622'}},
-                            {"value": informal_perdesaan_value, "name": "Pedesaan (Informal)", 'itemStyle': {'color': '#712622'}},
-                        ],
-                    }
-                ],
-            }
-        
-        st_echarts(
-            options=options_pie_jk, height="500px",
-        )
         
         option_pie_jk = {
             'backgroundColor': '#0E1117',
@@ -639,105 +702,204 @@ if selected == 'Radar Chart (Nivo)':
             options=option_pie_jk, height="500px",
         )
         
-if selected == 'Data Preview':
+        with st.expander('Insights'):
+            st.write('')
+        
+if selected == 'Data Preview':        
+    option = {
+        "title": {
+            "text": "Male and female height and weight distribution",
+            "subtext": "Data from: Heinz 2003"
+        },
+        "grid": {
+            "left": "3%",
+            "right": "7%",
+            "bottom": "7%",
+            "containLabel": True
+        },
+        "tooltip": {
+            "showDelay": 0,
+            "formatter": 
+                streamlit_echarts.JsCode(
+                "function (params) {if (params.value.length > 1) {return (params.seriesName +' :<br/>' + params.value[0] + 'cm ' + params.value[1] + 'kg ');} else { return (params.seriesName +' :<br/>' + params.name + ' : ' + params.value +'kg ');}}"     
+                ).js_code,
+            "axisPointer": {
+                "show": True,
+                "type": "cross",
+                "lineStyle": {
+                    "type": "dashed",
+                    "width": 1
+                }
+            }
+        },
+        "toolbox": {
+            "feature": {
+                "dataZoom": {},
+                "brush": {
+                    "type": ["rect", "polygon", "clear"]
+                }
+            }
+        },
+        "brush": {},
+        "legend": {
+            "data": ["Female", "Male"],
+            "left": "center",
+            "bottom": 10
+        },
+        "xAxis": [
+            {
+                "type": "value",
+                "scale": True,
+                "axisLabel": {
+                    "formatter": "{value} cm"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value",
+                "scale": True,
+                "axisLabel": {
+                    "formatter": "{value} kg"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Female",
+                "type": "scatter",
+                "emphasis": {
+                    "focus": "series"
+                },
+                "data": [
+                    [161.2, 51.6], [167.5, 59.0], [159.5, 49.2], [157.0, 63.0], [155.8, 53.6],
+                    [170.0, 59.0], [159.1, 47.6], [166.0, 69.8], [176.2, 66.8], [160.2, 75.2],
+                    [172.5, 55.2], [170.9, 54.2], [172.9, 62.5], [153.4, 42.0], [160.0, 50.0],
+                    [147.2, 49.8], [168.2, 49.2], [175.0, 73.2], [157.0, 47.8], [167.6, 68.8],
+                    [159.5, 50.6], [175.0, 82.5], [166.8, 57.2], [176.5, 87.8], [170.2, 72.8],
+                    [174.0, 54.5], [173.0, 59.8], [179.9, 67.3], [170.5, 67.8], [160.0, 47.0],
+                ],
+                "markArea": {
+                    "silent": True,
+                    "itemStyle": {
+                        "color": "transparent",
+                        "borderWidth": 1,
+                        "borderType": "dashed"
+                    },
+                    "data": [
+                        [
+                            {
+                                "name": "Female Data Range",
+                                "xAxis": "min",
+                                "yAxis": "min"
+                            },
+                            {
+                                "xAxis": "max",
+                                "yAxis": "max"
+                            }
+                        ]
+                    ]
+                },
+                "markPoint": {
+                    "data": [
+                        {"type": "max", "name": "Max"},
+                        {"type": "min", "name": "Min"}
+                    ]
+                },
+                "markLine": {
+                    "lineStyle": {
+                        "type": "solid"
+                    },
+                    "data": [{"type": "average", "name": "AVG"}, {"xAxis": 160}]
+                }
+            },
+            {
+                "name": "Male",
+                "type": "scatter",
+                "emphasis": {
+                    "focus": "series"
+                },
+                "data": [
+                    [174.0, 65.6], [175.3, 71.8], [193.5, 80.7], [186.5, 72.6], [187.2, 78.8],
+                    [181.5, 74.8], [184.0, 86.4], [184.5, 78.4], [175.0, 62.0], [184.0, 81.6],
+                    [180.0, 76.6], [177.8, 83.6], [192.0, 90.0], [176.0, 74.6], [174.0, 71.0],
+                    [184.0, 79.6], [192.7, 93.8], [171.5, 70.0], [173.0, 72.4], [176.0, 85.9],
+                    [176.0, 78.8], [180.5, 77.8], [172.7, 66.2], [176.0, 86.4], [173.5, 81.8],
+                    [178.0, 89.6], [180.3, 82.8], [180.3, 76.4], [164.5, 63.2], [173.0, 60.9],
+                ],
+                "markArea": {
+                    "silent": True,
+                    "itemStyle": {
+                        "color": "transparent",
+                        "borderWidth": 1,
+                        "borderType": "dashed"
+                    },
+                    "data": [
+                        [
+                            {
+                                "name": "Male Data Range",
+                                "xAxis": "min",
+                                "yAxis": "min"
+                            },
+                            {
+                                "xAxis": "max",
+                                "yAxis": "max"
+                            }
+                        ]
+                    ]
+                },
+                "markPoint": {
+                    "data": [
+                        {"type": "max", "name": "Max"},
+                        {"type": "min", "name": "Min"}
+                    ]
+                },
+                "markLine": {
+                    "lineStyle": {
+                        "type": "solid"
+                    },
+                    "data": [{"type": "average", "name": "Average"}, {"xAxis": 170}]
+                }
+            }
+        ]
+    }
     
-    df = pd.read_csv(r'data/csv/Merged_IHK_Kelompok_Pengeluaran_2017_2024.csv')  
+    st_echarts(options=option, height="600px")
+        
+    enter()
+    
+    data = pd.read_csv('data/csv/IHK per Pengeluaran.csv')
+    
+    # data = data[data['Kelompok Pengeluaran IHK'].isin(['Kesehatan', 'Transportasi'])]
+    
+    # Menyesuaikan format Bulan_Tahun menjadi string
+    data['Bulan_Tahun'] = data['Bulan_Tahun'].str.replace('-', ' ')
+    data['Bulan_Tahun'] = pd.to_datetime(data['Bulan_Tahun'], format='%B %Y').astype(str)
 
-                
-    # option = {
-    #     "title": {
-    #         "text": "Male and female height and weight distribution",
-    #         "subtext": "Data from: Heinz 2003",
-    #     },
-    #     "grid": {
-    #         "left": "3%",
-    #         "right": "7%",
-    #         "bottom": "7%",
-    #         "containLabel": True,
-    #     },
-    #     "tooltip": {
-    #         "trigger": "axis",
-    #         "showDelay": 0,
-            
-    #     },
-    #     "toolbox": {
-    #         "feature": {
-    #             "dataZoom": {},
-    #             "brush": {"type": ["rect", "polygon", "clear"]},
-    #         }
-    #     },
-    #     "brush": {},
-    #     "legend": {"data": ["Female", "Male"], "left": "center", "bottom": 10},
-    #     "xAxis": [
-    #         {
-    #             "type": "value",
-    #             "scale": True,
-    #             "axisLabel": {"formatter": "{value} cm"},
-    #             "splitLine": {"show": False},
-    #         }
-    #     ],
-    #     "yAxis": [
-    #         {
-    #             "type": "value",
-    #             "scale": True,
-    #             "axisLabel": {"formatter": "{value} kg"},
-    #             "splitLine": {"show": False},
-    #         }
-    #     ],
-    #     "series": [
-    #         {
-    #             "name": "Female",
-    #             "type": "scatter",
-    #             "emphasis": {"focus": "series"},
-    #             "data": [
-    #                 [161.2, 51.6],
-    #                 [167.5, 59.0],
-    #                 # Add more data points here...
-    #             ],
-    #             "markArea": {
-    #                 "silent": True,
-    #                 "itemStyle": {
-    #                     "color": "transparent",
-    #                     "borderWidth": 1,
-    #                     "borderType": "dashed",
-    #                 },
-    #                 "data": [
-    #                     [
-    #                         {"name": "Female Data Range", "xAxis": "min", "yAxis": "min"},
-    #                         {"xAxis": "max", "yAxis": "max"},
-    #                     ]
-    #                 ],
-    #             },
-    #             "markPoint": {"data": [{"type": "max", "name": "Max"}, {"type": "min", "name": "Min"}]},
-    #             "markLine": {"lineStyle": {"type": "solid"}, "data": [{"type": "average", "name": "AVG"}, {"xAxis": 160}]},
-    #         },
-    #         {
-    #             "name": "Male",
-    #             "type": "scatter",
-    #             "emphasis": {"focus": "series"},
-    #             "data": [
-    #                 [174.0, 65.6],
-    #                 [175.3, 71.8],
-    #                 # Add more data points here...
-    #             ],
-    #             "markArea": {
-    #                 "silent": True,
-    #                 "itemStyle": {
-    #                     "color": "transparent",
-    #                     "borderWidth": 1,
-    #                     "borderType": "dashed",
-    #                 },
-    #                 "data": [
-    #                     [
-    #                         {"name": "Male Data Range", "xAxis": "min", "yAxis": "min"},
-    #                         {"xAxis": "max", "yAxis": "max"},
-    #                     ]
-    #                 ],
-    #             },
-    #             "markPoint": {"data": [{"type": "max", "name": "Max"}, {"type": "min", "name": "Min"}]},
-    #             "markLine": {"lineStyle": {"type": "solid"}, "data": [{"type": "average", "name": "Average"}, {"xAxis": 170}]},
-    #         },
-    #     ],
-    # }
+    categories = data['Kelompok Pengeluaran IHK'].unique()
+    grouped_data = data.groupby('Kelompok Pengeluaran IHK')
 
-    # st_echarts(options=option)
+    echart_config = {
+        "tooltip": {"trigger": "axis"},
+        "legend": {"data": categories.tolist()},
+        "xAxis": {"type": "category", "data": data['Bulan_Tahun'].unique().tolist()},
+        "yAxis": {"type": "value",
+                  "max": 120,
+                  "min": 95,
+                  },
+        "series": [],
+    }
+
+    # data series untuk setiap kategori
+    for category in categories:
+        category_data = grouped_data.get_group(category)
+        series_data = {"name": category, "type": "line", "data": category_data['IHK Value'].tolist(), "smooth": True}
+        echart_config["series"].append(series_data)
+
+    st_echarts(echart_config, height="750px")
