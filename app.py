@@ -37,7 +37,7 @@ with st.sidebar:
     st.markdown("""
         <div style='text-align: center; font-size:24px'>
             <b>
-            Kemiskinan Jawa Barat <br> 2017-2023
+            Kemiskinan Jawa Barat <br>
             </b>
         </div>
     """, unsafe_allow_html=True)
@@ -95,8 +95,8 @@ if selected == 'Home':
         metric_idx_p2.metric(label="Indeks Keparahan Kemiskinan (P2)", value=round(idx_latest, 2), delta=round(delta_idx, 2))
         
         # Jumlah Penduduk Miskin
-        idx_before = df[df['Tahun'] == 2021]['Jumlah Penduduk Miskin'].mean()
-        idx_latest = df[df['Tahun'] == 2022]['Jumlah Penduduk Miskin'].mean()
+        idx_before = df[df['Tahun'] == 2021]['Jumlah Penduduk Miskin'].sum()
+        idx_latest = df[df['Tahun'] == 2022]['Jumlah Penduduk Miskin'].sum()
         delta_idx = idx_latest - idx_before
         metric_idx_penduduk.metric(label="Jumlah Penduduk Miskin (Ribu)", value=round(idx_latest, 2), delta=round(delta_idx, 2))
 
@@ -150,12 +150,12 @@ if selected == 'Home':
     _, col_filter_wilayah, col_filter_features, _ = st.columns([1, 7, 7, 1])
 
     with col_filter_wilayah:
-        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique())
+        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Bandung', 'Kota Bandung'])
         filtered_df = df[df['Wilayah Jawa Barat'].isin(selected_regions)]
         filtered_df = filtered_df[~filtered_df['Tahun'].isin([2015, 2016, 2023])]
 
     # Calculate "Jumlah Penduduk Miskin" mean for selected regions
-    mean_penduduk_miskin = [round(value, 2) for value in filtered_df.groupby('Tahun')['Jumlah Penduduk Miskin'].mean().tolist()]
+    sum_penduduk_miskin = [round(value, 2) for value in filtered_df.groupby('Tahun')['Jumlah Penduduk Miskin'].sum().tolist()]
 
     with col_filter_features:
         selected_features_columns = st.multiselect('Select features for line chart',
@@ -217,8 +217,8 @@ if selected == 'Home':
                 "type": "value",
                 "name": "Penduduk Miskin",
                 "min": 0,
-                "max": 500,
-                "interval": 100,
+                "max": max(sum_penduduk_miskin) * 1.5,
+                "interval": max(sum_penduduk_miskin) // 2,
                 "axisLabel": {"formatter": "{value} Jiwa", "color": "white"},
                 "nameTextStyle": {
                     "color": "white",
@@ -228,7 +228,7 @@ if selected == 'Home':
                 "axisTick": {
                     "alignWithLabel": True
                 },
-                "splitLine": {"show": True}
+                "splitLine": {"show": False}
             },
             {
                 "type": "value",
@@ -251,7 +251,7 @@ if selected == 'Home':
             {
                 "name": "Jumlah Penduduk Miskin",
                 "type": "bar",
-                "data": mean_penduduk_miskin,
+                "data": sum_penduduk_miskin,
                 "tooltip": {"formatter": "{b}: {c}"},  # Format tooltip to display rounded value
             },
             *line_series  # Add series for line chart based on selected features
@@ -276,23 +276,48 @@ if selected == 'Home':
     df.columns = df.columns.str.replace(' ', '_')
     df = df[df['Tahun'] == 2022]
         
+    # Menghitung nilai Q1 dan Q3 dari kolom Indeks Kedalaman Kemiskinan
+    Q1_kemiskinan = df['Indeks_Kedalaman_Kemiskinan'].quantile(0.25)
+    Q3_kemiskinan = df['Indeks_Kedalaman_Kemiskinan'].quantile(0.75)
+
+    # Menghitung nilai Q1 dan Q3 dari kolom Indeks Keparahan Kemiskinan
+    Q1_keparahan = df['Indeks_Keparahan_Kemiskinan'].quantile(0.25)
+    Q3_keparahan = df['Indeks_Keparahan_Kemiskinan'].quantile(0.75)
+
+    # Membuat kode JavaScript untuk gaya sel
     cellStyle = JsCode(
         r"""
         function(params) {
             var style = {};
-            if (params.colDef.field == 'Indeks_Pendidikan') {
-                if (params.value > 80) {
+            var value = params.value;
+            var field = params.colDef.field;
+            
+            if (field == 'Indeks_Kesehatan' || field == 'Indeks_Pendidikan' || field == 'Indeks_Pembangunan_Manusia' || field == 'Indeks_Pengeluaran') {
+                if (value >= 80) {
                     style['background-color'] = 'green';
-                } else if (params.value < 60) {
+                } else if (value < 60) {
                     style['background-color'] = 'red';
+                } else if (value > 50 && value < 80) {
+                    style['background-color'] = '#D88C00';
                 }
-            } else if (params.colDef.field == 'Indeks_Kesehatan') {
-                if (params.value > 80) {
+            } else if (field == 'Indeks_Kedalaman_Kemiskinan') {
+                if (value <= """ + str(Q1_kemiskinan) + """) {
                     style['background-color'] = 'green';
-                } else if (params.value < 50) {
+                } else if (value >= """ + str(Q3_kemiskinan) + """) {
                     style['background-color'] = 'red';
+                } else {
+                    style['background-color'] = '#D88C00';
+                }
+            } else if (field == 'Indeks_Keparahan_Kemiskinan') {
+                if (value <= """ + str(Q1_keparahan) + """) {
+                    style['background-color'] = 'green';
+                } else if (value >= """ + str(Q3_keparahan) + """) {
+                    style['background-color'] = 'red';
+                } else {
+                    style['background-color'] = '#D88C00';
                 }
             }
+            
             // Tambahkan properti font-size di sini
             style['font-size'] = '14px'; // Misalnya, ukuran teks 14px
             return style;
@@ -304,7 +329,124 @@ if selected == 'Home':
     grid_options['defaultColDef']['cellStyle'] = cellStyle
     AgGrid(df, gridOptions=grid_options, allow_unsafe_jscode=True, key='grid1')
     
+    with st.expander('Legend Color'):
+        col_1_legend, col_2_legend, col_3_legend = st.columns(3)
+    
+        with col_1_legend:
+            legend_html = """
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 20px; height: 20px; background-color: green; margin-right: 5px;"></div>
+                <div>Nilai >= 80</div>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 20px; height: 20px; background-color: red; margin-right: 5px;"></div>
+                <div>Nilai < 60</div>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 20px; height: 20px; background-color: #D88C00; margin-right: 5px;"></div>
+                <div>Nilai di antara 50 dan 80</div>
+            </div>
+            """
+            st.markdown("**Indeks Kesehatan, Pembangunan Manusia, dan Pengeluaran**")
+            st.markdown(legend_html, unsafe_allow_html=True)
+        
+        with col_2_legend:
+            legend_html_kemiskinan = f"""
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 20px; height: 20px; background-color: green; margin-right: 5px;"></div>
+                <div>Nilai <= Q1 ({Q1_kemiskinan:.2f})</div>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 20px; height: 20px; background-color: red; margin-right: 5px;"></div>
+                <div>Nilai >= Q3 ({Q3_kemiskinan:.2f})</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 20px; height: 20px; background-color: #D88C00; margin-right: 5px;"></div>
+                <div>Nilai di antara Q1 dan Q3</div>
+            </div>
+            """
+            
+            st.markdown("**Indeks Kedalaman Kemiskinan**")
+            st.markdown(legend_html_kemiskinan, unsafe_allow_html=True)
+
+
+        with col_3_legend:
+            legend_html_keparahan = f"""
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="width: 20px; height: 20px; background-color: green; margin-right: 5px;"></div>
+                    <div>Nilai <= Q1 ({Q1_keparahan:.2f})</div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="width: 20px; height: 20px; background-color: red; margin-right: 5px;"></div>
+                    <div>Nilai >= Q3 ({Q3_keparahan:.2f})</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 20px; height: 20px; background-color: #D88C00; margin-right: 5px;"></div>
+                    <div>Nilai di antara Q1 dan Q3</div>
+                </div>
+            """
+            st.markdown("**Indeks Keparahan Kemiskinan**")
+            st.markdown(legend_html_keparahan, unsafe_allow_html=True)
+    
     enter()
+    
+    horizontal_line()    
+    st.markdown("""
+        <div style='text-align: center; font-size:32px'>
+            <b>Five Top & Bottom Regions</b>
+        </div>
+    """, unsafe_allow_html=True)   
+    horizontal_line()
+        
+    
+    _, col_top_5, col_filter, col_bottom_5, _ = st.columns([1,4,2,4,1])
+    
+    with col_filter:
+        enter(); enter()
+        selected_feature = st.selectbox(
+            "Select features",
+            ('Indeks Kesehatan', 'Indeks Pembangunan Manusia', 'Indeks Pendidikan', 'Indeks Pengeluaran', 'Indeks Kedalaman Kemiskinan', 'Indeks Keparahan Kemiskinan'))
+
+    with col_top_5:
+            _, table_top_5, _ = st.columns([1,5,1])
+            
+            with table_top_5:
+                horizontal_line()    
+                st.markdown("""
+                    <div style='text-align: center; font-size:32px'>
+                        <b>Top 5 Regions</b>
+                    </div>
+                """, unsafe_allow_html=True)   
+                horizontal_line()
+                
+                df = pd.read_csv(r'data/csv/metrics.csv')  
+                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+                df_2022 = df[df['Tahun'] == 2022]
+                df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
+                top_5_df = df_sorted.head().reset_index(drop=True)
+
+                st.dataframe(top_5_df)
+                   
+    with col_bottom_5:
+            _, table_bottom_5, _ = st.columns([1,5,1])
+
+            with table_bottom_5:
+                horizontal_line()    
+                st.markdown("""
+                    <div style='text-align: center; font-size:32px'>
+                        <b>Bottom 5 Regions</b>
+                    </div>
+                """, unsafe_allow_html=True)   
+                horizontal_line()
+                
+                df = pd.read_csv(r'data/csv/metrics.csv')  
+                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+                df_2022 = df[df['Tahun'] == 2022]
+                df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
+                bottom_5_df = df_sorted.tail().reset_index(drop=True)
+
+                st.dataframe(bottom_5_df)
+
         
 if selected == 'IPM':  
     # colored_header(
@@ -320,9 +462,15 @@ if selected == 'IPM':
         </div>
     """, unsafe_allow_html=True)  
     horizontal_line()
-    
        
     df = pd.read_csv('data/csv/IPM_Menurut_Komponen_2015_2023.csv')
+    
+    _, col_filter_ipm, _ = st.columns([1,2,1])
+    
+    with col_filter_ipm:       
+        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Bandung', 'Kota Bandung'])
+    
+    df = df[df['Wilayah Jawa Barat'].isin(selected_regions)]
     df = df[df['Kategori'] != 'Pengeluaran Per Kapita']
     df = df[~df['Tahun'].isin([2015, 2016])] 
 
@@ -467,9 +615,6 @@ if selected == 'Trend IHK':
             st_echarts(echart_config, height="600px")
                   
 if selected == 'Radar Chart (Nivo)':
-    df = pd.read_csv(r"data/csv/df_merge_idx.csv")
-    df_jk = pd.read_csv(r'data/csv/Proporsi_JK_Pekerja_Formal_Informal_2018_2023.csv')
-    df_tipe_daerah = pd.read_csv(r'data/csv/Proporsi_Daerah_Pekerja_Formal_Informal_2018_2023.csv')
 
     colored_header(
         label="Regions Index Value per Year (Radar Chart)",
@@ -481,6 +626,8 @@ if selected == 'Radar Chart (Nivo)':
     
     col_filter_wilayah, col_filter_year = st.columns(2)
     
+    df = pd.read_csv(r"data/csv/df_merge_idx.csv")
+    
     with col_filter_wilayah:
         # Filter by region
         selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Bandung', 'Garut', 'Tasikmalaya'])
@@ -489,10 +636,9 @@ if selected == 'Radar Chart (Nivo)':
     with col_filter_year:
         # Filter by year
         selected_year = st.selectbox('Select Year', filtered_df['Tahun'].unique(), index=1)
+        filtered_df = filtered_df[['Wilayah Jawa Barat', 'Tahun', 'Tingkat Angkatan Kerja (%)', 'Tingkat Pengangguran (%)']]
         filtered_df = filtered_df[filtered_df['Tahun'] == selected_year]
-        filtered_df_jk = df_jk[df_jk['Tahun'] == selected_year]
-        filtered_df_tipe_daerah = df_tipe_daerah[df_tipe_daerah['Tahun'] == selected_year]
-        
+                
     radar_data = filtered_df.drop(columns=['Tahun'])
     # Convert data to list of dictionaries
     radar_data = radar_data.to_dict(orient='records')
@@ -555,16 +701,30 @@ if selected == 'Radar Chart (Nivo)':
         # st.write(f"This is :blue[test]")    
 
 
-    colored_header(
-        label="Proposi Jenis Pekerja Berdasarkan Jenis Kelamin",
-        description="",
-        color_name="orange-70",
-    )
+    # Proposi Jenis Pekerja Berdasarkan Jenis Kelamin
+    
+    df_jk = pd.read_csv(r'data/csv/Proporsi_JK_Pekerja_Formal_Informal_2018_2023.csv')
+    df_tipe_daerah = pd.read_csv(r'data/csv/Proporsi_Daerah_Pekerja_Formal_Informal_2018_2023.csv')
+
+    col_title, col_filter_year = st.columns([2,1])
+    
+    with col_title:
+        colored_header(
+            label="Proposi Jenis Pekerja Berdasarkan Jenis Kelamin",
+            description="",
+          
+            color_name="orange-70",
+        )
+    with col_filter_year:
+        selected_year = st.selectbox('Select Year', df_jk['Tahun'].unique(), index=1)
     
     enter()
     
-    col_pie_jk, col_pie_tipe_daerah = st.columns(2)
+    filtered_df_jk = df_jk[df_jk['Tahun'] == selected_year]
+    filtered_df_tipe_daerah = df_tipe_daerah[df_tipe_daerah['Tahun'] == selected_year]
     
+    col_pie_jk, col_pie_tipe_daerah = st.columns(2)
+
     with col_pie_jk:
         
         formal_pria_value = filtered_df_jk[filtered_df_jk['Jenis Kelamin'] == 'Laki-laki']['Proporsi Formal (%)'].values[0]
