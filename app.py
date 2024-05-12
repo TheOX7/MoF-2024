@@ -49,14 +49,39 @@ with st.sidebar:
     horizontal_line()
 
     selected = option_menu(menu_title=None, 
-                          options=["Home", 'IPM', 'Trend IHK', 'Radar Chart (Nivo)'], 
+                          options=["Home", 'IPM', 'Trend IHK', 'Pekerja'], 
                           icons=['house'], 
                           menu_icon="cast", default_index=0
                         )
     
     horizontal_line()
     
-    st.header('Popux Box (Information)')
+    st.markdown("""
+        <div style='text-align: center; font-size:24px'>
+            <b>Created By</b> 
+        </div>
+    """, unsafe_allow_html=True)
+    # enter()
+    st.markdown("""
+        <div style='text-align: center; font-size:20px'>
+            Sherly Santiadi
+            <br>
+            Marselius Agus Dhion
+        </div>
+    """, unsafe_allow_html=True)
+
+    horizontal_line()
+    
+    st.markdown("""
+        <div style='text-align: center; font-size:20px'>
+            <b>Data Source</b> <br>
+            BPS Jawa Barat
+        </div>
+    """, unsafe_allow_html=True)
+    
+    
+    # st.write('[Source Data]')
+
 
     
 if selected == 'Home':
@@ -98,7 +123,7 @@ if selected == 'Home':
         idx_before = df[df['Tahun'] == 2021]['Jumlah Penduduk Miskin'].sum()
         idx_latest = df[df['Tahun'] == 2022]['Jumlah Penduduk Miskin'].sum()
         delta_idx = idx_latest - idx_before
-        metric_idx_penduduk.metric(label="Jumlah Penduduk Miskin (Ribu)", value=round(idx_latest, 2), delta=round(delta_idx, 2))
+        metric_idx_penduduk.metric(label="Jumlah Penduduk Miskin (Ribu)", value=round(idx_latest, 2), delta=round(delta_idx, 0))
 
         style_metric_cards(background_color='#0E1117', border_radius_px=20)
         
@@ -139,7 +164,7 @@ if selected == 'Home':
     horizontal_line()    
     st.markdown("""
         <div style='text-align: center; font-size:32px'>
-            <b>Judul ... </b>
+            <b>Perbandingan Kemiskinan antar Kota/Kab. di Jawa Barat (2017-2023) </b>
         </div>
     """, unsafe_allow_html=True)   
     horizontal_line()
@@ -265,7 +290,7 @@ if selected == 'Home':
     horizontal_line()    
     st.markdown("""
         <div style='text-align: center; font-size:32px'>
-            <b>Judul ... </b>
+            <b>Matriks Ranking Indeks Wilayah Jawa Barat 2022</b>
         </div>
     """, unsafe_allow_html=True)   
     horizontal_line()
@@ -295,9 +320,9 @@ if selected == 'Home':
             if (field == 'Indeks_Kesehatan' || field == 'Indeks_Pendidikan' || field == 'Indeks_Pembangunan_Manusia' || field == 'Indeks_Pengeluaran') {
                 if (value >= 80) {
                     style['background-color'] = 'green';
-                } else if (value < 60) {
+                } else if (value <= 60) {
                     style['background-color'] = 'red';
-                } else if (value > 50 && value < 80) {
+                } else if (value > 60 && value < 80) {
                     style['background-color'] = '#D88C00';
                 }
             } else if (field == 'Indeks_Kedalaman_Kemiskinan') {
@@ -340,14 +365,14 @@ if selected == 'Home':
             </div>
             <div style="display: flex; align-items: center; margin-bottom: 10px;">
                 <div style="width: 20px; height: 20px; background-color: red; margin-right: 5px;"></div>
-                <div>Nilai < 60</div>
+                <div>Nilai <= 60</div>
             </div>
             <div style="display: flex; align-items: center; margin-bottom: 10px;">
                 <div style="width: 20px; height: 20px; background-color: #D88C00; margin-right: 5px;"></div>
-                <div>Nilai di antara 50 dan 80</div>
+                <div>Nilai di antara 60 dan 80</div>
             </div>
             """
-            st.markdown("**Indeks Kesehatan, Pembangunan Manusia, dan Pengeluaran**")
+            st.markdown("**Indeks Kesehatan, Pembangunan Manusia, Pendiddikan & Pengeluaran**")
             st.markdown(legend_html, unsafe_allow_html=True)
         
         with col_2_legend:
@@ -388,73 +413,84 @@ if selected == 'Home':
             st.markdown("**Indeks Keparahan Kemiskinan**")
             st.markdown(legend_html_keparahan, unsafe_allow_html=True)
     
-    enter()
+    enter();enter();enter()
     
-    horizontal_line()    
-    st.markdown("""
-        <div style='text-align: center; font-size:32px'>
-            <b>Five Top & Bottom Regions</b>
-        </div>
-    """, unsafe_allow_html=True)   
-    horizontal_line()
+    # st.markdown("""
+    #     <div style='text-align: center; font-size:32px'>
+    #         <b>Five Top & Bottom Regions</b>
+    #     </div>
+    # """, unsafe_allow_html=True)   
+    
+    col_header, col_filter_index = st.columns([3,1])
+    
+    with col_header:
+        colored_header(
+            label="Five Top & Bottom Regions",
+            description="",
+            color_name="orange-70",
+        )
         
-    
-    _, col_top_5, col_filter, col_bottom_5, _ = st.columns([1,4,2,4,1])
-    
-    with col_filter:
-        enter(); enter()
+    with col_filter_index:
         selected_feature = st.selectbox(
             "Select features",
-            ('Indeks Kesehatan', 'Indeks Pembangunan Manusia', 'Indeks Pendidikan', 'Indeks Pengeluaran', 'Indeks Kedalaman Kemiskinan', 'Indeks Keparahan Kemiskinan'))
+            ('Indeks Kesehatan', 'Indeks Pembangunan Manusia', 'Indeks Pendidikan', 'Indeks Pengeluaran', 'Indeks Kedalaman Kemiskinan', 'Indeks Keparahan Kemiskinan'), index=0)
 
+
+    enter()
+    
+    col_top_5, col_bottom_5, col_expl_index  = st.columns([2,2,3])
+    
     with col_top_5:
-            _, table_top_5, _ = st.columns([1,5,1])
-            
-            with table_top_5:
-                horizontal_line()    
-                st.markdown("""
-                    <div style='text-align: center; font-size:32px'>
-                        <b>Top 5 Regions</b>
-                    </div>
-                """, unsafe_allow_html=True)   
-                horizontal_line()
-                
-                df = pd.read_csv(r'data/csv/metrics.csv')  
-                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
-                df_2022 = df[df['Tahun'] == 2022]
-                df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
-                top_5_df = df_sorted.head().reset_index(drop=True)
+            st.markdown("""
+                <div style='text-align: center; font-size:24px'>
+                    <b>Top 5 Regions</b>
+                </div>
+            """, unsafe_allow_html=True)   
+            enter()
+            df = pd.read_csv(r'data/csv/metrics.csv')  
+            df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+            df_2022 = df[df['Tahun'] == 2022]
+            df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
+            top_5_df = df_sorted.head().reset_index(drop=True)
 
-                st.dataframe(top_5_df)
+            st.dataframe(top_5_df)
                    
     with col_bottom_5:
-            _, table_bottom_5, _ = st.columns([1,5,1])
+            st.markdown("""
+                <div style='text-align: center; font-size:24px'>
+                    <b>Bottom 5 Regions</b>
+                </div>
+            """, unsafe_allow_html=True)   
+            enter()            
+            df = pd.read_csv(r'data/csv/metrics.csv')  
+            df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+            df_2022 = df[df['Tahun'] == 2022]
+            df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
+            bottom_5_df = df_sorted.tail().reset_index(drop=True)
 
-            with table_bottom_5:
-                horizontal_line()    
-                st.markdown("""
-                    <div style='text-align: center; font-size:32px'>
-                        <b>Bottom 5 Regions</b>
-                    </div>
-                """, unsafe_allow_html=True)   
-                horizontal_line()
+            st.dataframe(bottom_5_df)
                 
-                df = pd.read_csv(r'data/csv/metrics.csv')  
-                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
-                df_2022 = df[df['Tahun'] == 2022]
-                df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
-                bottom_5_df = df_sorted.tail().reset_index(drop=True)
-
-                st.dataframe(bottom_5_df)
-
+    with col_expl_index:
+        # enter()
+        if selected_feature == 'Indeks Kesehatan':
+            with st.expander('Program yang dapat dilakukan', expanded=True):
+                st.markdown('<b>Disclaimer: Khusus Indeks Kesehatan</b>', unsafe_allow_html=True)
+                st.write('''
+                        Berikut adalah program-program yang telah direalisasikan pada tahun 2021.
+                        Sehingga berdampak pada peningkatan kesehatan tahun 2022 pada Kota/Kabupaten Bekasi:
+                        ''')
+                st.write("""
+                        - Intervensi dan konvergensi tentang stunting di Kabupaten Bekasi.
+                        - Jaminan kesehatan masyarakat miskin melalui PBI, BPJS dan Jamkesda.
+                        - Peningkatan Puskesmas Pembantu menjadi Puskesmas.
+                        - Akreditasi Puskesmas
+                        - Peningkatan upaya kesehatan masyarakat melalui promotive, preventif dan kuratif ketenagakerjaan
+                        """)
+                
+                st.write('Referensi: https://www.bekasikab.go.id/ini-dia-43-program-prioritas-kabupaten-bekasi-tahun-2021')
+            
         
 if selected == 'IPM':  
-    # colored_header(
-    #     label="My New Pretty Colored Header",
-    #     description="",
-    #     color_name="violet-70",
-    # )
-    
     horizontal_line()
     st.markdown("""
         <div style='text-align: center; font-size:30px'>
@@ -468,7 +504,7 @@ if selected == 'IPM':
     _, col_filter_ipm, _ = st.columns([1,2,1])
     
     with col_filter_ipm:       
-        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Bandung', 'Kota Bandung'])
+        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Kota Bandung', 'Cianjur'])
     
     df = df[df['Wilayah Jawa Barat'].isin(selected_regions)]
     df = df[df['Kategori'] != 'Pengeluaran Per Kapita']
@@ -531,6 +567,26 @@ if selected == 'IPM':
     }
 
     st_echarts(options, height="600px")
+    
+    col_expl_ipm_top, col_expl_ipm_bottom = st.columns(2)
+    
+    with col_expl_ipm_top:
+        with st.expander('Insight (Kota Bandung)', expanded=True):
+            st.write(f"""
+                    - Mulai dari 2017 - 2023, :blue[Kota Bandung] merupakan wilayah dengan :blue[Rata-rata Usia Harapan Hidup (UHH) tertinggi sebesar 74 tahun].
+                    - Pada tahun 2023, :orange[Kota Bandung memiliki Harapan Lama Sekolah (HLS) mencapai 14.24 tahun], artinya rata-rata anak usia 7 tahun 
+                    yang masuk jenjang pendidikan formal memiliki :orange[peluang untuk bersekolah selama 14.24 tahun atau setara dengan Diploma 3].
+                    - Pada 2023, :green[Rata-rata Lama Sekolah (RLS) penduduk berusia 25 tahun ke atas adalah 11.06 tahun], hal ini masih kurang dari :red[target seharusnya yaitu 12 tahun].
+                     """)
+            
+    with col_expl_ipm_bottom:
+        with st.expander('Insight (Kota Cianjur)', expanded=True):
+            st.write(f"""
+                    - Mulai dari 2017 - 2023, :blue[Kota Cianjur] merupakan wilayah dengan :blue[Rata-rata Usia Harapan Hidup (UHH) terendah sebesar 70 tahun].
+                    - Pada tahun 2023, :orange[Kota Cianjur memiliki Harapan Lama Sekolah (HLS) mencapai nilai 12.03 tahun], artinya rata-rata anak usia 7 tahun 
+                    yang masuk jenjang pendidikan formal memiliki :orange[peluang untuk bersekolah selama 12.03 tahun atau setara dengan Diploma 1].
+                    - Pada 2023, :green[Rata-rata Lama Sekolah (RLS) penduduk usia 25 tahun ke atas adalah 7.22 tahun], hal ini masih kurang dari :red[target seharusnya yaitu 7 tahun].
+                     """)
 
  
 if selected == 'Trend IHK':
@@ -613,11 +669,23 @@ if selected == 'Trend IHK':
                 echart_config["series"].append(series_data)
 
             st_echarts(echart_config, height="600px")
+            
+        with st.expander('Insight', expanded=True):
+            st.write("""
+                    Trend IHK pada dashboard dapat dilihat mengalami peningkatan yang cukup signifikan dikarenakan pertumbuhan ekonomi pada kuartal IV 2023 sebesar 5,05% dan mengalami penurunan dibandingkan tahun 2022 sekitar 5,31%. 
+                    
+                    Hal itu disebabkan oleh beberapa faktor seperti: 
+                    - Melambatnya konsumsi rumah tangga menjadi 4,5 persen (yoy) pada 2023-01-01 dibanding 2023-02-01 sebesar 5,1 persen (yoy). Terutama disebabkan melemahnya :orange[(tertundanya) daya beli kelas menengah ke atas], serta relatif :orange[terbatasnya kenaikan konsumsi segmen berpenghasilan rendah di tengah kenaikan belanja sosial dan politik menjelang pemilihan umum (pemilu)].
+                    - Perlambatan investasi menjadi 5,0 persen (yoy) pada 2023-01-01, dibandingkan 5,8 persen pada 2023-02-01. :orange[Investasi mesin dan peralatan serta kendaraan bermotor mengalami perlambatan seiring melemahnya ekspor dan investasi asing langsung] (foreign direct investment/FDI), sementara investasi bangunan dan infrastruktur relatif bertahan didukung belanja modal pemerintah
+                    - Melambatnya kinerja ekspor-impor. Kontribusi net ekspor terhadap pertumbuhan PDB menurun menjadi 0,4 percentage point (ppt) pada Q4 2023 dari 0,5 ppt pada Q3 2023. Hal ini mencerminkan :orange[peningkatan impor lebih tinggi ketimbang ekspor] seiring perlambatan ekonomi global dan harga komoditas yang melemah.
+                     """)
+            st.write("Source: https://www.example.com")
+            
                   
-if selected == 'Radar Chart (Nivo)':
+if selected == 'Pekerja':
 
     colored_header(
-        label="Regions Index Value per Year (Radar Chart)",
+        label="Tingkat Angkatan Kerja vs Pengangguran (%)",
         description="",
         color_name="orange-70",
     )
@@ -635,7 +703,7 @@ if selected == 'Radar Chart (Nivo)':
 
     with col_filter_year:
         # Filter by year
-        selected_year = st.selectbox('Select Year', filtered_df['Tahun'].unique(), index=1)
+        selected_year = st.selectbox('Select Year', filtered_df['Tahun'].unique(), index=6)
         filtered_df = filtered_df[['Wilayah Jawa Barat', 'Tahun', 'Tingkat Angkatan Kerja (%)', 'Tingkat Pengangguran (%)']]
         filtered_df = filtered_df[filtered_df['Tahun'] == selected_year]
                 
@@ -694,29 +762,36 @@ if selected == 'Radar Chart (Nivo)':
                 )        
             
     with col_expl:
-        with st.expander('Explanation', expanded=True):
-            st.subheader('_Streamlit_ is :blue[cool]')
-        
-        # st.write(f"This is :blue[{selected_year}]")    
-        # st.write(f"This is :blue[test]")    
-
-
-    # Proposi Jenis Pekerja Berdasarkan Jenis Kelamin
+        with st.expander('Insight', expanded=True):
+            st.write("""
+                    Berdasarkan perbandingan Top 3 (Kota Bekasi, Kota Depok, dan Kota Bandung) dan Bottom 3 (Subang, Indramayu, dan Cianjur) pada indeks pendidikan, 
+                    persentase tingkat pengangguran tertinggi pada tahun 2023 terdapat di Kota Bandung 8.83%, Kota Bekasi 7.90%, dan Cianjur 7.71%.      
+                    """)
+            horizontal_line()
+            st.write("""
+                     Pada 2023, Kota Bandung memiliki persentase tingkat pengangguran yang cukup tinggi yakni 8.83%, sedangkan pada tahun 2021, :orange[persentase ini menurun ketika terjadi pandemi Covid-19 yang mencapai 11.46%]. 
+                     Kota Bandung tidak memiliki sumber daya alam. Bandung hanya memiliki Sumber Daya Manusia (SDM) sehingga pendapatannya bergantung pada bisnis fashion, wisata, kuliner, perdagangan, desain, dan lain-lain. 
+                     :orange[Dengan terbatasnya sumber daya, maka tingkat inflasi harga barang di Bandung akan lebih tinggi ketimbang daerah lainnya. Hal inilah yang akan berkaitan erat dengan persentase tingkat pengangguran di Kota Bandung]
+                     """)
+            st.write('Referensi: https://bandungbergerak.id/article/detail/159126/membaca-klaim-penurunan-angka-pengangguran-kota-bandung-di-tengah-marak-pencari-kerja')
+    # Proporsi Jenis Pekerja Berdasarkan Jenis Kelamin
     
     df_jk = pd.read_csv(r'data/csv/Proporsi_JK_Pekerja_Formal_Informal_2018_2023.csv')
     df_tipe_daerah = pd.read_csv(r'data/csv/Proporsi_Daerah_Pekerja_Formal_Informal_2018_2023.csv')
 
     col_title, col_filter_year = st.columns([2,1])
     
+    enter(); enter()
+    
     with col_title:
         colored_header(
-            label="Proposi Jenis Pekerja Berdasarkan Jenis Kelamin",
+            label="Proporsi Jenis Pekerja Berdasarkan Jenis Kelamin",
             description="",
           
             color_name="orange-70",
         )
     with col_filter_year:
-        selected_year = st.selectbox('Select Year', df_jk['Tahun'].unique(), index=1)
+        selected_year = st.selectbox('Select Year', df_jk['Tahun'].unique(), index=5)
     
     enter()
     
@@ -795,8 +870,17 @@ if selected == 'Radar Chart (Nivo)':
             options=option_pie_jk, height="500px",
         )
         
-        with st.expander('Insights'):
-            st.write('')
+        with st.expander('Insights', expanded=True):
+            st.write("""
+                     Pada tahun 2023, persentase pekerja informal wanita cenderung lebih tinggi dibandingkan pria hal ini dikarenakan tingkat kepuasan terhadap kinerja, 
+                     beberapa faktor yang menjelaskan perbedaan kepuasan kerja antar gender tersebut: 
+                     
+                    - Perempuan memiliki harapan yang lebih rendah dibandingkan laki-laki
+                    - Perempuan fokus pada perannya sebagai ibu rumah tangga dan pengasuh anak 
+                    - Pendapatan bukan menjadi ukuran kepuasan kerja perempuan, melainkan relasi sosial, dan lain sebagainya.
+                     """)
+            
+            st.write('Referensi: https://unair.ac.id/banyak-wanita-indonesia-bekerja-di-sektor-informal-apakah-mereka-puas-dengan-pekerjaan-ini/')
             
     with col_pie_tipe_daerah:
         
@@ -868,174 +952,12 @@ if selected == 'Radar Chart (Nivo)':
             options=option_pie_jk, height="500px",
         )
         
-        with st.expander('Insights'):
-            st.write('')
+        with st.expander('Insights', expanded=True):
+            st.write("""
+                     Pada tahun 2023, :orange[74.59% proporsi pekerja di pedesaan berada pada sektor informal]. Membengkaknya proporsi pekerja di sektor informal disebabkan karena terbatasnya daya serap sektor modern atau formal terhadap angkatan kerja. 
+                     :orange[Terbatasnya daya serap sektor formal atau modern ini karena tenaga kerja yang dibutuhkan adalah mereka yang mempunyai pendidikan dan keterampilan yang tinggi, padahal di lain pihak sebagian besar tenaga kerja Indonesia masih mempunyai pendidikan yang rendah.] 
+                     Akibatnya tenaga kerja yang tidak terserap di sektor formal terpaksa masuk ke sektor informal yang tidak membutuhkan persyaratan apa-apa seperti di sektor formal.
+                     """)
+            
+            st.write('Referensi: https://lib.ui.ac.id/m/detail.jsp?id=78268&lokasi=lokal')
         
-# if selected == 'Data Preview':        
-#     option = {
-#         "title": {
-#             "text": "Male and female height and weight distribution",
-#             "subtext": "Data from: Heinz 2003"
-#         },
-#         "grid": {
-#             "left": "3%",
-#             "right": "7%",
-#             "bottom": "7%",
-#             "containLabel": True
-#         },
-#         "tooltip": {
-#             "showDelay": 0,
-#             "formatter": 
-#                 streamlit_echarts.JsCode(
-#                 "function (params) {if (params.value.length > 1) {return (params.seriesName +' :<br/>' + params.value[0] + 'cm ' + params.value[1] + 'kg ');} else { return (params.seriesName +' :<br/>' + params.name + ' : ' + params.value +'kg ');}}"     
-#                 ).js_code,
-#             "axisPointer": {
-#                 "show": True,
-#                 "type": "cross",
-#                 "lineStyle": {
-#                     "type": "dashed",
-#                     "width": 1
-#                 }
-#             }
-#         },
-#         "toolbox": {
-#             "feature": {
-#                 "dataZoom": {},
-#                 "brush": {
-#                     "type": ["rect", "polygon", "clear"]
-#                 }
-#             }
-#         },
-#         "brush": {},
-#         "legend": {
-#             "data": ["Female", "Male"],
-#             "left": "center",
-#             "bottom": 10
-#         },
-#         "xAxis": [
-#             {
-#                 "type": "value",
-#                 "scale": True,
-#                 "axisLabel": {
-#                     "formatter": "{value} cm"
-#                 },
-#                 "splitLine": {
-#                     "show": False
-#                 }
-#             }
-#         ],
-#         "yAxis": [
-#             {
-#                 "type": "value",
-#                 "scale": True,
-#                 "axisLabel": {
-#                     "formatter": "{value} kg"
-#                 },
-#                 "splitLine": {
-#                     "show": False
-#                 }
-#             }
-#         ],
-#         "series": [
-#             {
-#                 "name": "Female",
-#                 "type": "scatter",
-#                 "emphasis": {
-#                     "focus": "series"
-#                 },
-#                 "data": [
-#                     [161.2, 51.6], [167.5, 59.0], [159.5, 49.2], [157.0, 63.0], [155.8, 53.6],
-#                     [170.0, 59.0], [159.1, 47.6], [166.0, 69.8], [176.2, 66.8], [160.2, 75.2],
-#                     [172.5, 55.2], [170.9, 54.2], [172.9, 62.5], [153.4, 42.0], [160.0, 50.0],
-#                     [147.2, 49.8], [168.2, 49.2], [175.0, 73.2], [157.0, 47.8], [167.6, 68.8],
-#                     [159.5, 50.6], [175.0, 82.5], [166.8, 57.2], [176.5, 87.8], [170.2, 72.8],
-#                     [174.0, 54.5], [173.0, 59.8], [179.9, 67.3], [170.5, 67.8], [160.0, 47.0],
-#                 ],
-#                 "markArea": {
-#                     "silent": True,
-#                     "itemStyle": {
-#                         "color": "transparent",
-#                         "borderWidth": 1,
-#                         "borderType": "dashed"
-#                     },
-#                     "data": [
-#                         [
-#                             {
-#                                 "name": "Female Data Range",
-#                                 "xAxis": "min",
-#                                 "yAxis": "min"
-#                             },
-#                             {
-#                                 "xAxis": "max",
-#                                 "yAxis": "max"
-#                             }
-#                         ]
-#                     ]
-#                 },
-#                 "markPoint": {
-#                     "data": [
-#                         {"type": "max", "name": "Max"},
-#                         {"type": "min", "name": "Min"}
-#                     ]
-#                 },
-#                 "markLine": {
-#                     "lineStyle": {
-#                         "type": "solid"
-#                     },
-#                     "data": [{"type": "average", "name": "AVG"}, {"xAxis": 160}]
-#                 }
-#             },
-#             {
-#                 "name": "Male",
-#                 "type": "scatter",
-#                 "emphasis": {
-#                     "focus": "series"
-#                 },
-#                 "data": [
-#                     [174.0, 65.6], [175.3, 71.8], [193.5, 80.7], [186.5, 72.6], [187.2, 78.8],
-#                     [181.5, 74.8], [184.0, 86.4], [184.5, 78.4], [175.0, 62.0], [184.0, 81.6],
-#                     [180.0, 76.6], [177.8, 83.6], [192.0, 90.0], [176.0, 74.6], [174.0, 71.0],
-#                     [184.0, 79.6], [192.7, 93.8], [171.5, 70.0], [173.0, 72.4], [176.0, 85.9],
-#                     [176.0, 78.8], [180.5, 77.8], [172.7, 66.2], [176.0, 86.4], [173.5, 81.8],
-#                     [178.0, 89.6], [180.3, 82.8], [180.3, 76.4], [164.5, 63.2], [173.0, 60.9],
-#                 ],
-#                 "markArea": {
-#                     "silent": True,
-#                     "itemStyle": {
-#                         "color": "transparent",
-#                         "borderWidth": 1,
-#                         "borderType": "dashed"
-#                     },
-#                     "data": [
-#                         [
-#                             {
-#                                 "name": "Male Data Range",
-#                                 "xAxis": "min",
-#                                 "yAxis": "min"
-#                             },
-#                             {
-#                                 "xAxis": "max",
-#                                 "yAxis": "max"
-#                             }
-#                         ]
-#                     ]
-#                 },
-#                 "markPoint": {
-#                     "data": [
-#                         {"type": "max", "name": "Max"},
-#                         {"type": "min", "name": "Min"}
-#                     ]
-#                 },
-#                 "markLine": {
-#                     "lineStyle": {
-#                         "type": "solid"
-#                     },
-#                     "data": [{"type": "average", "name": "Average"}, {"xAxis": 170}]
-#                 }
-#             }
-#         ]
-#     }
-    
-#     st_echarts(options=option, height="600px")
-        
-#     enter()
