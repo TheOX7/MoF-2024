@@ -500,53 +500,46 @@ if selected == 'IPM':
     horizontal_line()
        
     df = pd.read_csv('data/csv/IPM_Menurut_Komponen_2015_2023.csv')
-    
+
     _, col_filter_ipm, _ = st.columns([1,2,1])
-    
+
     with col_filter_ipm:       
         selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Kota Bandung', 'Cianjur'])
-    
+
     df = df[df['Wilayah Jawa Barat'].isin(selected_regions)]
     df = df[df['Kategori'] != 'Pengeluaran Per Kapita']
     df = df[~df['Tahun'].isin([2015, 2016])] 
 
-    # Filter hanya kolom 'Usia Harapan Hidup' untuk bar chart
+    # Agregasi mean untuk nilai sesuai kategori dan tahun
+    df = df.groupby(['Kategori', 'Tahun'])['Value'].mean().round(2).reset_index()
+
     df_bar = df[df['Kategori'] == 'Usia Harapan Hidup']
 
-    # Filter kolom 'Rata Rata Lama Sekolah' dan 'Harapan Lama Sekolah' untuk line chart
     df_line = df[(df['Kategori'] == 'Rata Rata Lama Sekolah') | (df['Kategori'] == 'Harapan Lama Sekolah')]
 
     data_series = []
 
-    # Data untuk bar chart
     data_series.append({
         "name": 'Usia Harapan Hidup',
         "type": "bar",
         "barGap": 0,
         "data": list(df_bar['Value']),
-        "yAxisIndex": 0,  # Menggunakan y-axis pertama
+        "yAxisIndex": 0,
         "emphasis": {"focus": "series"},
-        "label": {
-            "show": False  # Menyembunyikan nilai pada bar chart
-        },
-        "barWidth": 100,  # Mengatur lebar bar chart
+        "label": {"show": False},
+        "barWidth": 100,
     })
 
-    # Data untuk line chart
     for kategori, group in df_line.groupby('Kategori'):
         data_series.append({
             "name": kategori,
             "type": "line",
             "data": list(group['Value']),
-            "yAxisIndex": 1,  # Menggunakan y-axis kedua
+            "yAxisIndex": 1,
             "emphasis": {"focus": "series"},
-            "lineStyle": {
-                "width": 4  # Memperbesar ketebalan garis pada line chart
-            },
-            "label": {
-                "show": False  # Menyembunyikan nilai pada line chart
-            },
-            "symbolSize": 8,  # Memperbesar marker pada line chart
+            "lineStyle": {"width": 4},
+            "label": {"show": False},
+            "symbolSize": 8,
         })
 
     options = {
@@ -556,10 +549,10 @@ if selected == 'IPM':
         "yAxis": [
             {"type": "value", "name": "Usia Harapan Hidup", "position": "left",
             "axisLabel": {"fontSize": 14, "color": "white"}, "max": 100, "interval":25,
-            "nameTextStyle": {"color": "white"}},  # Menyesuaikan warna teks sumbu y pertama
+            "nameTextStyle": {"color": "white"}},
             {"type": "value", "name": "Lama Sekolah", "position": "right",
             "axisLabel": {"fontSize": 14, "color": "white"}, "max":20, "interval":5,
-            "nameTextStyle": {"color": "white"}}  # Menyesuaikan warna teks sumbu y kedua
+            "nameTextStyle": {"color": "white"}}
         ],
         "series": data_series,
         "color": ["#1f77b4", "#ff7f0e", "#2ca02c"],
@@ -639,10 +632,15 @@ if selected == 'Trend IHK':
             # Trend IHK per Pengeluaran (Bulan)
             df = pd.read_csv('data/csv/IHK per Pengeluaran.csv')
             df = df[df['Kelompok Pengeluaran IHK'].isin(selected_pengeluaran_ihk)]
-               
+
             # Menyesuaikan format Bulan_Tahun menjadi string
-            df['Bulan_Tahun'] = df['Bulan_Tahun'].str.replace('-', ' ')
-            df['Bulan_Tahun'] = pd.to_datetime(df['Bulan_Tahun'], format='%B %Y').astype(str)
+            df['Bulan_Tahun'] = pd.to_datetime(df['Bulan_Tahun'], format='%B-%Y')
+
+            # Mengurutkan DataFrame berdasarkan Bulan_Tahun
+            df = df.sort_values(by='Bulan_Tahun')
+
+            # Mengubah Bulan_Tahun kembali menjadi string
+            df['Bulan_Tahun'] = df['Bulan_Tahun'].dt.strftime('%Y-%m-%d')
 
             categories = df['Kelompok Pengeluaran IHK'].unique()
             grouped_data = df.groupby('Kelompok Pengeluaran IHK')
@@ -651,11 +649,11 @@ if selected == 'Trend IHK':
                 "tooltip": {"trigger": "axis"},
                 "legend": {"data": categories.tolist(), "textStyle": {"fontSize": 14, "color": "white"}},
                 "xAxis": {"type": "category",
-                          "data": df['Bulan_Tahun'].unique().tolist(),
-                          "axisLabel": {"fontSize": 12, "color": "white"}
-                          },
+                        "data": df['Bulan_Tahun'].unique().tolist(),
+                        "axisLabel": {"fontSize": 12, "color": "white"}
+                        },
                 "yAxis": {"type": "value",
-                        "max": 120,
+                        "max": 130,
                         "min": 95,
                         "axisLabel": {"fontSize": 12, "color": "white"}
                         },
@@ -665,7 +663,9 @@ if selected == 'Trend IHK':
             # data series untuk setiap kategori
             for category in categories:
                 category_data = grouped_data.get_group(category)
-                series_data = {"name": category, "type": "line", "data": category_data['IHK Value'].tolist(), "smooth": True}
+                # Menghitung rata-rata nilai IHK untuk setiap bulan
+                category_data_mean = category_data.groupby('Bulan_Tahun')['IHK Value'].mean().round(2).reset_index()
+                series_data = {"name": category, "type": "line", "data": category_data_mean['IHK Value'].tolist(), "smooth": True}
                 echart_config["series"].append(series_data)
 
             st_echarts(echart_config, height="600px")
