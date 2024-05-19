@@ -39,7 +39,7 @@ with st.sidebar:
     st.markdown("""
         <div style='text-align: center; font-size:24px'>
             <b>
-            Kemiskinan <br> Jawa Barat <br>
+            Kemiskinan Jawa Barat <br>
             </b>
         </div>
     """, unsafe_allow_html=True)
@@ -856,6 +856,8 @@ if selected == 'Trend IHK':
                             <span style='color: #FFBD32;'>beras (0.49%), cabai merah (0.28%), dan rokok kretek, filter, (0.17%)</span>.
                         </li>
                     </ul>
+                    
+                Referensi: <a href="https://www.antaranews.com/berita/3897189/bps-sebut-inflasi-tahun-2023-jabar-sebesar-248-persen">https://www.antaranews.com/berita/3897189/bps-sebut-inflasi-tahun-2023-jabar-sebesar-248-persen</a>
                 </div>
             """, unsafe_allow_html=True)
                   
