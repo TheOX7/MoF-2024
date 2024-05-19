@@ -9,8 +9,10 @@ from streamlit_echarts import st_echarts
 import streamlit_echarts
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 
+# def horizontal_line(color='#808080'):
+#     st.markdown(f'<hr style="border:2px solid {color};">', unsafe_allow_html=True)
 def horizontal_line():
-    st.markdown('<hr>', unsafe_allow_html=True)
+    st.markdown(f'<hr>', unsafe_allow_html=True)
     
 def enter():
     st.markdown('<br>', unsafe_allow_html=True)
@@ -29,7 +31,7 @@ def logo_link(link, path_img, width):
     )    
    
 st.set_page_config(
-    page_title='MoF - Kemiskinan Jawa Barat',
+    page_title='MoF - Tingkat Ekonomi Jawa Barat',
     layout='wide'
 )
 
@@ -37,14 +39,14 @@ with st.sidebar:
     st.markdown("""
         <div style='text-align: center; font-size:24px'>
             <b>
-            Kemiskinan Jawa Barat <br>
+            Tingkat Ekonomi <br> Jawa Barat <br>
             </b>
         </div>
     """, unsafe_allow_html=True)
     
     enter()
 
-    logo_link('', r'img/logo-jabar.png', 125)
+    logo_link('', r'img/logo-jabar.png', 100)
     enter()
     horizontal_line()
 
@@ -55,34 +57,24 @@ with st.sidebar:
                         )
     
     horizontal_line()
-    
-    st.markdown("""
-        <div style='text-align: center; font-size:24px'>
-            <b>Created By</b> 
-        </div>
-    """, unsafe_allow_html=True)
-    # enter()
+        
     st.markdown("""
         <div style='text-align: center; font-size:20px'>
-            Sherly Santiadi
+            <b>Created By</b> <br>
+            <a href="https://www.linkedin.com/in/sherly-santiadi-2723a821a" style="text-decoration: none;">Sherly Santiadi</a>
             <br>
-            Marselius Agus Dhion
+            <a href="https://linkedin.com/in/marselius-agus-dhion/" style="text-decoration: none;">Marselius Agus Dhion</a>
         </div>
     """, unsafe_allow_html=True)
-
+    
     horizontal_line()
     
     st.markdown("""
         <div style='text-align: center; font-size:20px'>
             <b>Data Source</b> <br>
-            BPS Jawa Barat
+            <a href="https://jabar.bps.go.id" style="text-decoration: none;">BPS Jabar</a>
         </div>
     """, unsafe_allow_html=True)
-    
-    
-    # st.write('[Source Data]')
-
-
     
 if selected == 'Home':
     # colored_header(
@@ -90,6 +82,7 @@ if selected == 'Home':
     #     description="",
     #     color_name="orange-70",
     # )
+    
     
     # enter()
     horizontal_line()
@@ -105,7 +98,7 @@ if selected == 'Home':
     df = pd.read_csv(r'data/csv/metrics.csv')
     
     def metric_cards_1():
-        _, _, metric_idx_p1, metric_idx_penduduk, metric_idx_p2, _, _ = st.columns([2,2,3,3,3,2,2])                
+        _, _, metric_idx_p1, metric_idx_penduduk, metric_idx_p2, _, _ = st.columns([2,2,4,4,4,2,2])                
         
         # Indeks Kedalaman Kemiskinan (P1)
         idx_before = df[df['Tahun'] == 2021]['Indeks Kedalaman Kemiskinan'].mean()
@@ -128,7 +121,7 @@ if selected == 'Home':
         style_metric_cards(background_color='#0E1117', border_radius_px=20)
         
     def metric_cards_2():
-        _, metric_idx_kesehatan, metric_ipm, metric_idx_pendidikan, metric_idx_pengeluaran, _ = st.columns([1,1,1,1,1,1])                
+        _, metric_idx_kesehatan, metric_ipm, metric_idx_pendidikan, metric_idx_pengeluaran, _ = st.columns([1,2,2,2,2,1])                
         
         # Indeks Kesehatan
         idx_before = df[df['Tahun'] == 2021]['Indeks Kesehatan'].mean()
@@ -163,8 +156,8 @@ if selected == 'Home':
     
     horizontal_line()    
     st.markdown("""
-        <div style='text-align: center; font-size:32px'>
-            <b>Perbandingan Kemiskinan antar Kota/Kab. di Jawa Barat (2017-2023) </b>
+        <div style='text-align: center; font-size:28px'>
+            <b>Perbandingan Tingkat Ekonomi <br> Kota/Kab. di Jawa Barat (2017-2023) </b>
         </div>
     """, unsafe_allow_html=True)   
     horizontal_line()
@@ -173,7 +166,8 @@ if selected == 'Home':
     df = pd.read_csv(r'data/csv/metrics.csv')
 
     _, col_filter_wilayah, col_filter_features, _ = st.columns([1, 7, 7, 1])
-
+    enter()
+    
     with col_filter_wilayah:
         selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Bandung', 'Kota Bandung'])
         filtered_df = df[df['Wilayah Jawa Barat'].isin(selected_regions)]
@@ -297,10 +291,33 @@ if selected == 'Home':
 
     
     df = pd.read_csv(r'data/csv/metrics.csv')  
-    df.drop(['Tingkat Angkatan Kerja (%)', 'Tingkat Pengangguran (%)', 'Jumlah Penduduk Miskin'], inplace=True, axis=1)
-    df.columns = df.columns.str.replace(' ', '_')
     df = df[df['Tahun'] == 2022]
+    df.drop(['Tahun', 'Tingkat Angkatan Kerja (%)', 'Tingkat Pengangguran (%)', 'Jumlah Penduduk Miskin'], inplace=True, axis=1)
+    df.columns = df.columns.str.replace(' ', '_')
         
+    rank_color_expl = """
+    <div style="display: flex; justify-content: center; align-items: center; margin-bottom:8px">
+        <div style="display: flex; align-items: center;">
+            <div style="width: 15px; height: 15px; background-color: green; margin-right: 5px;"></div>
+            <div style="margin-right: 15px">Sangat Tinggi</div>
+            <div style="width: 15px; height: 15px; background-color: #0D590D; margin-right: 5px;"></div>
+            <div style="margin-right: 15px">Tinggi</div>
+            <div style="width: 15px; height: 15px; background-color: #EA9800; margin-right: 5px;"></div>
+            <div style="margin-right: 15px">Sedang</div>
+            <div style="width: 15px; height: 15px; background-color: #D80000; margin-right: 5px;"></div>
+            <div style="margin-right: 15px">Rendah</div>
+        </div>
+    </div>
+    """
+    st.markdown(rank_color_expl, unsafe_allow_html=True)
+    
+    st.markdown("""
+        <div style='text-align: center; font-size:16px; margin-bottom: 12px'>
+            <a href="https://repository.its.ac.id/2807/1/1315201715-Master_Theses.pdf" style="text-decoration: none;">Referensi Legend (Hal 32)</a>
+        </div>
+    """, unsafe_allow_html=True)
+
+            
     # Menghitung nilai Q1 dan Q3 dari kolom Indeks Kedalaman Kemiskinan
     Q1_kemiskinan = df['Indeks_Kedalaman_Kemiskinan'].quantile(0.25)
     Q3_kemiskinan = df['Indeks_Kedalaman_Kemiskinan'].quantile(0.75)
@@ -318,28 +335,30 @@ if selected == 'Home':
             var field = params.colDef.field;
             
             if (field == 'Indeks_Kesehatan' || field == 'Indeks_Pendidikan' || field == 'Indeks_Pembangunan_Manusia' || field == 'Indeks_Pengeluaran') {
-                if (value >= 80) {
-                    style['background-color'] = 'green';
-                } else if (value <= 60) {
-                    style['background-color'] = 'red';
-                } else if (value > 60 && value < 80) {
-                    style['background-color'] = '#D88C00';
+                if (value >= 80 && value <= 100) {
+                    style['background-color'] = 'green'; // sangat tinggi
+                } else if (value >= 70 && value < 80) {
+                    style['background-color'] = '#0D590D'; // tinggi
+                } else if (value >= 60 && value < 70) {
+                    style['background-color'] = '#EA9800'; // sedang
+                } else if (value >= 0 && value < 60) {
+                    style['background-color'] = '#D80000'; // rendah
                 }
             } else if (field == 'Indeks_Kedalaman_Kemiskinan') {
                 if (value <= """ + str(Q1_kemiskinan) + """) {
                     style['background-color'] = 'green';
                 } else if (value >= """ + str(Q3_kemiskinan) + """) {
-                    style['background-color'] = 'red';
+                    style['background-color'] = '#D80000';
                 } else {
-                    style['background-color'] = '#D88C00';
+                    style['background-color'] = '#EA9800';
                 }
             } else if (field == 'Indeks_Keparahan_Kemiskinan') {
                 if (value <= """ + str(Q1_keparahan) + """) {
                     style['background-color'] = 'green';
                 } else if (value >= """ + str(Q3_keparahan) + """) {
-                    style['background-color'] = 'red';
+                    style['background-color'] = '#D80000';
                 } else {
-                    style['background-color'] = '#D88C00';
+                    style['background-color'] = '#EA9800';
                 }
             }
             
@@ -350,82 +369,107 @@ if selected == 'Home':
         """
     )
 
+    # Mengatur GridOptions
     grid_options = GridOptionsBuilder.from_dataframe(df).build()
     grid_options['defaultColDef']['cellStyle'] = cellStyle
+    grid_options['autoSizeColumns'] = True  # Mengatur lebar kolom berdasarkan teks pada nama kolom
+
+    # Menampilkan tabel menggunakan AgGrid
     AgGrid(df, gridOptions=grid_options, allow_unsafe_jscode=True, key='grid1')
     
-    with st.expander('Legend Color'):
-        col_1_legend, col_2_legend, col_3_legend = st.columns(3)
+    legend_col, expl_matrix_col = st.columns([4,5])
     
-        with col_1_legend:
-            legend_html = """
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <div style="width: 20px; height: 20px; background-color: green; margin-right: 5px;"></div>
-                <div>Nilai >= 80</div>
-            </div>
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <div style="width: 20px; height: 20px; background-color: red; margin-right: 5px;"></div>
-                <div>Nilai <= 60</div>
-            </div>
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <div style="width: 20px; height: 20px; background-color: #D88C00; margin-right: 5px;"></div>
-                <div>Nilai di antara 60 dan 80</div>
-            </div>
-            """
-            st.markdown("**Indeks Kesehatan, Pembangunan Manusia, Pendiddikan & Pengeluaran**")
-            st.markdown(legend_html, unsafe_allow_html=True)
-        
-        with col_2_legend:
-            legend_html_kemiskinan = f"""
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <div style="width: 20px; height: 20px; background-color: green; margin-right: 5px;"></div>
-                <div>Nilai <= Q1 ({Q1_kemiskinan:.2f})</div>
-            </div>
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <div style="width: 20px; height: 20px; background-color: red; margin-right: 5px;"></div>
-                <div>Nilai >= Q3 ({Q3_kemiskinan:.2f})</div>
-            </div>
-            <div style="display: flex; align-items: center;">
-                <div style="width: 20px; height: 20px; background-color: #D88C00; margin-right: 5px;"></div>
-                <div>Nilai di antara Q1 dan Q3</div>
-            </div>
-            """
-            
-            st.markdown("**Indeks Kedalaman Kemiskinan**")
-            st.markdown(legend_html_kemiskinan, unsafe_allow_html=True)
+    with legend_col:
+            with st.expander('Legend Color', expanded=True):    
+                legend_html = """
+                - <b>Indeks Kesehatan, Pembangunan Manusia, Pendidikan & Pengeluaran</b>
+                <div style="display: flex; align-items: center">
+                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                        <div style="width: 15px; height: 15px; background-color: green; margin-right: 5px; margin-left: 30px"></div>
+                        <div>80 <= Nilai <= 100</div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                        <div style="width: 15px; height: 15px; background-color: #0D590D; margin-right: 5px;"></div>
+                        <div>70 <= Nilai < 80</div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                        <div style="width: 15px; height: 15px; background-color: #EA9800; margin-right: 5px;"></div>
+                        <div>60 <= Nilai < 70</div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 15px; height: 15px; background-color: #D80000; margin-right: 5px;"></div>
+                        <div>0 <= Nilai < 60</div>
+                    </div>
+                </div>
+                """
+                st.markdown(legend_html, unsafe_allow_html=True)
 
+                
+                enter()
 
-        with col_3_legend:
-            legend_html_keparahan = f"""
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="width: 20px; height: 20px; background-color: green; margin-right: 5px;"></div>
-                    <div>Nilai <= Q1 ({Q1_keparahan:.2f})</div>
+                legend_html_kemiskinan = f"""
+                - <b>Indeks Kedalaman Kemiskinan</b>
+                <div style="display: flex; align-items: center">
+                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                        <div style="width: 15px; height: 15px; background-color: green; margin-right: 5px; margin-left: 30px"></div>
+                        <div style="margin-right: 4px">Nilai <= {Q1_kemiskinan:.2f} (Q1)</div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 15px; height: 15px; background-color: #EA9800; margin-right: 5px;"></div>
+                        <div style="margin-right: 22px">Q1 < Nilai < Q3</div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                        <div style="width: 15px; height: 15px; background-color: #D80000; margin-right: 5px;"></div>
+                        <div>Nilai >= {Q3_kemiskinan:.2f} (Q3)</div>
+                    </div>
                 </div>
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="width: 20px; height: 20px; background-color: red; margin-right: 5px;"></div>
-                    <div>Nilai >= Q3 ({Q3_keparahan:.2f})</div>
+                """
+
+                st.markdown(legend_html_kemiskinan, unsafe_allow_html=True)
+
+                enter()
+                
+                legend_html_keparahan = f"""
+                - <b>Indeks Keparahan Kemiskinan</b>
+                <div style="display: flex; align-items: center">
+                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                        <div style="width: 15px; height: 15px; background-color: green; margin-right: 5px; margin-left: 30px"></div>
+                        <div style="margin-right: 4px">Nilai <= {Q1_keparahan:.2f} (Q1)</div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 15px; height: 15px; background-color: #EA9800; margin-right: 5px;"></div>
+                        <div style="margin-right: 22px">Q1 < Nilai < Q3</div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                        <div style="width: 15px; height: 15px; background-color: #D80000; margin-right: 5px;"></div>
+                        <div>Nilai >= {Q3_keparahan:.2f} (Q3)</div>
+                    </div>
                 </div>
-                <div style="display: flex; align-items: center;">
-                    <div style="width: 20px; height: 20px; background-color: #D88C00; margin-right: 5px;"></div>
-                    <div>Nilai di antara Q1 dan Q3</div>
-                </div>
-            """
-            st.markdown("**Indeks Keparahan Kemiskinan**")
-            st.markdown(legend_html_keparahan, unsafe_allow_html=True)
+                """
+                st.markdown(legend_html_keparahan, unsafe_allow_html=True)
+                
+                enter()
+
+    with expl_matrix_col:
+        with st.expander('Insight', expanded=True):
+            st.write('aABC')
     
-    enter();enter();enter()
     
-    # st.markdown("""
-    #     <div style='text-align: center; font-size:32px'>
-    #         <b>Five Top & Bottom Regions</b>
-    #     </div>
-    # """, unsafe_allow_html=True)   
+    enter();enter();enter() 
+    
+    def tooltip_html(color, text):
+        return f"""
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <div style="width: 20px; height: 20px; background-color: {color}; margin-right: 5px;"></div>
+            <div>{text}</div>
+        </div>
+        """
     
     col_header, col_filter_index = st.columns([3,1])
     
     with col_header:
         colored_header(
-            label="Five Top & Bottom Regions",
+            label="Lima Kota/Kab. Teratas & Terbawah",
             description="",
             color_name="orange-70",
         )
@@ -441,55 +485,159 @@ if selected == 'Home':
     col_top_5, col_bottom_5, col_expl_index  = st.columns([2,2,3])
     
     with col_top_5:
-            st.markdown("""
-                <div style='text-align: center; font-size:24px'>
-                    <b>Top 5 Regions</b>
-                </div>
-            """, unsafe_allow_html=True)   
-            enter()
-            df = pd.read_csv(r'data/csv/metrics.csv')  
-            df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
-            df_2022 = df[df['Tahun'] == 2022]
-            df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
-            top_5_df = df_sorted.head().reset_index(drop=True)
-
-            st.dataframe(top_5_df)
+            if ((selected_feature == 'Indeks Kedalaman Kemiskinan') or (selected_feature == 'Indeks Keparahan Kemiskinan')):
+                st.markdown("""
+                    <div style='text-align: center; font-size:24px'>
+                        <b>Lima Kota/Kab. Terbawah</b>
+                    </div>
+                """, unsafe_allow_html=True)   
+                enter()
+                
+                df = pd.read_csv(r'data/csv/metrics.csv')  
+                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+                df_2022 = df[df['Tahun'] == 2022]
+                df_sorted = df_2022.sort_values(by=selected_feature, ascending=True)   
+                df_sorted = df_sorted.astype(str)
+                bottom_5_df = df_sorted.head().reset_index(drop=True)
+                st.dataframe(bottom_5_df)
+            
+            else:
+                st.markdown("""
+                    <div style='text-align: center; font-size:24px'>
+                        <b>Lima Kota/Kab. Teratas</b>
+                    </div>
+                """, unsafe_allow_html=True)   
+                enter()
+            
+                df = pd.read_csv(r'data/csv/metrics.csv')  
+                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+                df_2022 = df[df['Tahun'] == 2022]
+                df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)   
+                df_sorted = df_sorted.astype(str)
+                top_5_df = df_sorted.head().reset_index(drop=True)
+                st.dataframe(top_5_df)
                    
     with col_bottom_5:
-            st.markdown("""
-                <div style='text-align: center; font-size:24px'>
-                    <b>Bottom 5 Regions</b>
-                </div>
-            """, unsafe_allow_html=True)   
-            enter()            
-            df = pd.read_csv(r'data/csv/metrics.csv')  
-            df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
-            df_2022 = df[df['Tahun'] == 2022]
-            df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
-            bottom_5_df = df_sorted.tail().reset_index(drop=True)
+            if ((selected_feature == 'Indeks Kedalaman Kemiskinan') or (selected_feature == 'Indeks Keparahan Kemiskinan')):
+                st.markdown("""
+                    <div style='text-align: center; font-size:24px'>
+                        <b>Lima Kota/Kab. Teratas</b>
+                    </div>
+                """, unsafe_allow_html=True)   
+                enter()    
+                 
+                df = pd.read_csv(r'data/csv/metrics.csv')  
+                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+                df_2022 = df[df['Tahun'] == 2022]
+                df_sorted = df_2022.sort_values(by=selected_feature, ascending=False)
+                df_sorted = df_sorted.astype(str)
+                top_5_df = df_sorted.tail().reset_index(drop=True)
 
-            st.dataframe(bottom_5_df)
+                st.dataframe(top_5_df)
+                
+            else:
+                st.markdown("""
+                    <div style='text-align: center; font-size:24px'>
+                        <b>Lima Kota/Kab. Terbawah</b>
+                    </div>
+                """, unsafe_allow_html=True)   
+                enter()
+                
+                df = pd.read_csv(r'data/csv/metrics.csv')  
+                df = df[['Wilayah Jawa Barat', 'Tahun', selected_feature]]
+                df_2022 = df[df['Tahun'] == 2022]
+                df_sorted = df_2022.sort_values(by=selected_feature, ascending=True)
+                df_sorted = df_sorted.astype(str)
+                bottom_5_df = df_sorted.tail().reset_index(drop=True)
+
+                st.dataframe(bottom_5_df)
                 
     with col_expl_index:
-        # enter()
         if selected_feature == 'Indeks Kesehatan':
-            with st.expander('Program yang dapat dilakukan', expanded=True):
-                st.markdown('<b>Disclaimer: Khusus Indeks Kesehatan</b>', unsafe_allow_html=True)
-                st.write('''
-                        Berikut adalah program-program yang telah direalisasikan pada tahun 2021.
-                        Sehingga berdampak pada peningkatan kesehatan tahun 2022 pada Kota/Kabupaten Bekasi:
-                        ''')
-                st.write("""
-                        - Intervensi dan konvergensi tentang stunting di Kabupaten Bekasi.
-                        - Jaminan kesehatan masyarakat miskin melalui PBI, BPJS dan Jamkesda.
-                        - Peningkatan Puskesmas Pembantu menjadi Puskesmas.
-                        - Akreditasi Puskesmas
-                        - Peningkatan upaya kesehatan masyarakat melalui promotive, preventif dan kuratif ketenagakerjaan
-                        """)
-                
-                st.write('Referensi: https://www.bekasikab.go.id/ini-dia-43-program-prioritas-kabupaten-bekasi-tahun-2021')
+            with st.expander('Program yang dapat dilakukan bagi kota/kab. terbawah', expanded=True):                
+                    st.markdown("""
+                        <div style='font-size:16px'>
+                            Berikut merupakan program-program yang telah direalisasikan pada tahun 2021 
+                            dan berdampak pada peningkatan indeks kesehatan tahun 2022 pada Kota Bekasi:
+                            <br>
+                            <ul>
+                                <li> Intervensi dan konvergensi tentang stunting. </li>
+                                <li> Jaminan kesehatan masyarakat miskin melalui PBI, BPJS dan Jamkesda. </li>
+                                <li> Peningkatan Puskesmas Pembantu menjadi Puskesmas. </li>
+                                <li> Akreditasi Puskesmas </li>
+                                <li> Peningkatan upaya kesehatan masyarakat melalui promotive, preventif dan kuratif ketenagakerjaan </li>  <br>                  
+                            </ul>
+
+                        Referensi: <a href='https://www.bekasikab.go.id/ini-dia-43-program-prioritas-kabupaten-bekasi-tahun-2021'>Program Prioritas Bekasi Tahun 2021</a> <br>
+                        </div>
+                    """, unsafe_allow_html=True)   
             
-        
+        if selected_feature == 'Indeks Pembangunan Manusia':
+            with st.expander('Program yang dapat dilakukan bagi kota/kab. terbawah', expanded=True):                
+                st.markdown("""
+                    <div style='font-size:16px'>
+                        Berikut adalah program-program yang telah direalisasikan pada tahun 2021. Sehingga berdampak
+                        pada peningkatan IPM tahun 2022 pada Kota Bandung:
+                        <br>
+                        <ul>
+                            <li> Menggelar semacam Musyawarah Perencanaan Pembangunan (MUSRENBANG) dalam rangka penyusunan Rencana Kerja Pemerintah Daerah (RKPD) </li>
+                            <li> Memperbanyak pelatihan yang berorientasi pada pengembangan usaha </li>
+                            <li> Memperbanyak job fair terutama untuk penyandang disabilitas </li>
+                        </ul>
+
+                    Referensi: 
+                    - <a href='https://jabarprov.go.id/berita/serat-aspirasi-pemkot-bandung-gelar-musrenbang-rkpd-tahun-2025-12621'>Serat Aspirasi, Pemkot Bandung Gelar Musrenbang RKPD Tahun 2025</a> <br>
+                    - <a href='https://www.bandung.go.id/news/read/7767/ipm-naik-angka-pengangguran-turun-pemkot-bandung-gaskan-musrenbang'>IPM Naik, Angka Pengangguran Turun, Pemkot Bandung "Gaskan" Musrenbang 2024</a> <br>
+                    </div>
+                """, unsafe_allow_html=True)
+                enter()
+                
+        if selected_feature == 'Indeks Pendidikan':
+            with st.expander('Program yang dapat dilakukan bagi kota/kab. terbawah', expanded=True):                
+                st.markdown("""
+                    <div style='font-size:16px'>
+                        Berikut adalah program-program yang telah direalisasikan pada tahun 2021 dan berdampak
+                        pada peningkatan indeks pendidikan tahun 2022 pada Kota Bandung:
+                        <br>
+                        <ul>
+                            <li> Peningkatan Mutu Pendidikan melalui Akreditasi Sekolah/Lembaga Pendidikan </li>
+                            <li> Peningkatan Mutu Sarana dan Prasarana Pendidikan melalui Perbaikan dan Penambahan Ruang Kelas Baru, Perpustakaan dan Laboratorium </li>
+                            <li> Optimalisasi ICT sebagai Decision Support System dan Executive Support System dalam layanan Pendidikan yang berkualitas </li>
+                        </ul>
+                    <br>
+                    Referensi: <a href='https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiQm8a_gZmGAxWge2wGHaEEA3AQFnoECDIQAQ&url=https%3A%2F%2Fdisdik.bekasikota.go.id%2Fdownload%2Ffile%2FRenstra_Disdik_2019.pdf&usg=AOvVaw0sbx6EM3NHPvLaKTtKYyVs&cshid=1716097817019113&opi=89978449'>Rencana Strategis Dinas Pendidikan Kota Bekasi Tahun 2018 - 2023</a> <br>
+                    </div>
+                """, unsafe_allow_html=True)
+                enter()
+                
+        if selected_feature == 'Indeks Pengeluaran':
+            with st.expander('Insight', expanded=True):                
+                st.markdown("""
+                    <div style='font-size:16px'>
+                        Persentase angka kemiskinan Kabupaten/Kota Tasikmalaya sebenarnya telah menunjukkan penurunan dari tahun sebelumnya. <br>
+                        Pada saat ini Kabupaten/ Kota Tasikmalaya merupakan Kabupaten/ Kota termiskin dari 27 kabupaten/kota se-Jawa Barat di urutan pertengahan. <br>
+                        Namun hal yang bisa dilakukan agar keluar dari jurang kemiskinan salah satunya adalah peran penting para pemuda agar jangan sampai menjadi penyumbang pengangguran tetapi harus mau berwirausaha <br> <br>
+                    
+                    Referensi: <a href='https://radartasik.id/kemiskinan-kabupaten-tasikmalaya-tembus-1073-persen/'>Biaya Hidup di Bekasi Capai Rp 14,34 Juta</a> <br>
+                    </div>
+                """, unsafe_allow_html=True)
+                enter()
+                
+        if ((selected_feature == 'Indeks Kedalaman Kemiskinan') or (selected_feature == 'Indeks Keparahan Kemiskinan')):
+            with st.expander('Insight', expanded=True):                
+                st.markdown("""
+                    <div style='font-size:16px'>
+                        Indeks pengeluaran di Kota Bekasi tahun 2022 merupakan indeks tertinggi di Provinsi Jawa Barat. <br>
+                        Pada tahun 2022, UMK Kabupaten Bekasi ditetapkan sebesar Rp4.791.844. <br>
+                        Deputi Bidang Statistik Distribusi dan Jasa BPS menyatakan bahwa nilai konsumsi SBH (Survei Biaya Hidup) di Kota Bekasi sebesar Rp 14,34 juta per bulan.  <br>
+                        Hal tersebut terjadi, karena biaya hidup pada Kota Bekasi yang tinggi dan menjadikannya sebagai kota dengan nilai konsumsi/pengeluaran tertinggi di Jawa Barat <br> <br>
+
+                    Referensi: <a href='https://katadata.co.id/finansial/makro/6578ed58b1347/biaya-hidup-di-bekasi-capai-rp-14-34-juta-termahal-setelah-jakarta'>Biaya Hidup di Bekasi Capai Rp 14,34 Juta</a> <br>
+                    </div>
+                """, unsafe_allow_html=True)
+                enter()
+                
+                        
 if selected == 'IPM':  
     horizontal_line()
     st.markdown("""
@@ -587,7 +735,7 @@ if selected == 'Trend IHK':
         horizontal_line()
         st.markdown("""
             <div style='text-align: center; font-size:30px'>
-                <b>Trend & Jumlah IHK - 2020-2024</b>
+                <b>Trend & Jumlah IHK (2020-2024)</b>
             </div>
         """, unsafe_allow_html=True)     
         horizontal_line()
@@ -671,16 +819,24 @@ if selected == 'Trend IHK':
             st_echarts(echart_config, height="600px")
             
         with st.expander('Insight', expanded=True):
-            st.write("""
-                    Trend IHK pada dashboard dapat dilihat mengalami peningkatan yang cukup signifikan dikarenakan pertumbuhan ekonomi pada kuartal IV 2023 sebesar 5,05% dan mengalami penurunan dibandingkan tahun 2022 sekitar 5,31%. 
-                    
-                    Hal itu disebabkan oleh beberapa faktor seperti: 
-                    - Melambatnya konsumsi rumah tangga menjadi 4,5 persen (yoy) pada 2023-01-01 dibanding 2023-02-01 sebesar 5,1 persen (yoy). Terutama disebabkan melemahnya :orange[(tertundanya) daya beli kelas menengah ke atas], serta relatif :orange[terbatasnya kenaikan konsumsi segmen berpenghasilan rendah di tengah kenaikan belanja sosial dan politik menjelang pemilihan umum (pemilu)].
-                    - Perlambatan investasi menjadi 5,0 persen (yoy) pada 2023-01-01, dibandingkan 5,8 persen pada 2023-02-01. :orange[Investasi mesin dan peralatan serta kendaraan bermotor mengalami perlambatan seiring melemahnya ekspor dan investasi asing langsung] (foreign direct investment/FDI), sementara investasi bangunan dan infrastruktur relatif bertahan didukung belanja modal pemerintah
-                    - Melambatnya kinerja ekspor-impor. Kontribusi net ekspor terhadap pertumbuhan PDB menurun menjadi 0,4 percentage point (ppt) pada Q4 2023 dari 0,5 ppt pada Q3 2023. Hal ini mencerminkan :orange[peningkatan impor lebih tinggi ketimbang ekspor] seiring perlambatan ekonomi global dan harga komoditas yang melemah.
-                     """)
-            st.write("Source: https://www.example.com")
-            
+            st.markdown("""
+                <div style='font-size:16px'>
+                    <ul>
+                        <li>
+                            Pada dashboard grafik sebelah kiri, terdapat salah satu hal yang menarik untuk dibahas yaitu terdapat <span style='color: #FFBD32;'>penurunan tajam trend IHK yaitu pada rentang waktu sekitar Desember 2023.</span> <br>
+                            Hal ini ada kaitannya dengan hasil pemantauan BPS di tujuh kota di Jabar pada Desember 2023 terjadi inflasi yoy sebesar 2.48% atau 
+                            <span style='color: #FFBD32;'>terjadi kenaikan Indeks Harga Konsumen (IHK) dari 115.11 pada Desember 2022 menjadi 117.96 di Desember 2023 </span>.
+                        </li>
+                        <li>
+                            Jika dilihat berdasar kelompok pengeluarannya, 
+                            <span style='color: #FFBD32;'>penyumbang inflasi secara tahunan terbesar adalah makanan, minuman dan tembakau yang mengalami inflasi sebesar 6.47%</span> dan 
+                            <span style='color: #FFBD32;'>memberi andil sebesar 1.6% pada inflasi tahunan</span>, 
+                            dengan komoditas yang memberikan andil terbesar pada kelompok ini adalah 
+                            <span style='color: #FFBD32;'>beras (0.49%), cabai merah (0.28%), dan rokok kretek, filter, (0.17%)</span>.
+                        </li>
+                    </ul>
+                </div>
+            """, unsafe_allow_html=True)
                   
 if selected == 'Pekerja':
 
@@ -698,7 +854,7 @@ if selected == 'Pekerja':
     
     with col_filter_wilayah:
         # Filter by region
-        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Bandung', 'Garut', 'Tasikmalaya'])
+        selected_regions = st.multiselect('Select Regions', df['Wilayah Jawa Barat'].unique(), default=['Bandung', 'Bekasi', 'Cianjur'])
         filtered_df = df[df['Wilayah Jawa Barat'].isin(selected_regions)]
 
     with col_filter_year:
@@ -727,6 +883,7 @@ if selected == 'Pekerja':
                     dotSize=10,
                     dotColor={ "theme": "background" },
                     dotBorderWidth=2,
+                    maxValue=100,  # Set maximum value for the radar chart axes
                     motionConfig="wobbly",
                     legends=[
                         {
@@ -770,7 +927,7 @@ if selected == 'Pekerja':
             horizontal_line()
             st.write("""
                      Pada 2023, Kota Bandung memiliki persentase tingkat pengangguran yang cukup tinggi yakni 8.83%, sedangkan pada tahun 2021, :orange[persentase ini menurun ketika terjadi pandemi Covid-19 yang mencapai 11.46%]. 
-                     Kota Bandung tidak memiliki sumber daya alam. Bandung hanya memiliki Sumber Daya Manusia (SDM) sehingga pendapatannya bergantung pada bisnis fashion, wisata, kuliner, perdagangan, desain, dan lain-lain. 
+                     Pendapatan Kota Bandung bergantung pada bisnis fashion, wisata, kuliner, perdagangan, desain, dan lain-lain. 
                      :orange[Dengan terbatasnya sumber daya, maka tingkat inflasi harga barang di Bandung akan lebih tinggi ketimbang daerah lainnya. Hal inilah yang akan berkaitan erat dengan persentase tingkat pengangguran di Kota Bandung]
                      """)
             st.write('Referensi: https://bandungbergerak.id/article/detail/159126/membaca-klaim-penurunan-angka-pengangguran-kota-bandung-di-tengah-marak-pencari-kerja')
@@ -842,7 +999,7 @@ if selected == 'Pekerja':
                     ],
                     'roseType': 'radius',
                     'label': {
-                        'color': 'rgba(255, 255, 255, 0.3)',
+                        'color': '#CCCCCC',
                         'textStyle': { 
                             'fontSize': 16  
                         }
@@ -924,7 +1081,7 @@ if selected == 'Pekerja':
                     ],
                     'roseType': 'radius',
                     'label': {
-                        'color': 'rgba(255, 255, 255, 0.3)',
+                        'color': '#CCCCCC',
                         'textStyle': {   
                             'fontSize': 16 
                         }
