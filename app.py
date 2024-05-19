@@ -31,7 +31,7 @@ def logo_link(link, path_img, width):
     )    
    
 st.set_page_config(
-    page_title='MoF - Tingkat Ekonomi Jawa Barat',
+    page_title='MoF - Kemiskinan Jawa Barat',
     layout='wide'
 )
 
@@ -39,7 +39,7 @@ with st.sidebar:
     st.markdown("""
         <div style='text-align: center; font-size:24px'>
             <b>
-            Tingkat Ekonomi <br> Jawa Barat <br>
+            Kemiskinan <br> Jawa Barat <br>
             </b>
         </div>
     """, unsafe_allow_html=True)
@@ -76,15 +76,15 @@ with st.sidebar:
         </div>
     """, unsafe_allow_html=True)
     
-if selected == 'Home':
-    # colored_header(
-    #     label="Kemiskinan di Jawa Barat (General)",
-    #     description="",
-    #     color_name="orange-70",
-    # )
+    horizontal_line()
     
+    _, col_disc, _ = st.columns([1,3,1])
+    with col_disc:
+        with st.popover("Disclaimer (Click Here)"):
+            st.markdown("""Visualisasi yang ditampilkan berdasarkan data yang didapat dari BPS Jawa Barat. <br> 
+                        Oleh karena itu, terdapat informasi yang belum terupdate sampai dengan tahun 2024""", unsafe_allow_html=True)
     
-    # enter()
+if selected == 'Home':    
     horizontal_line()
     st.markdown("""
         <div style='text-align: center; font-size:32px'>
@@ -152,12 +152,14 @@ if selected == 'Home':
     metric_cards_1()
     metric_cards_2()
     
+    # enter()
+    
     enter()
     
     horizontal_line()    
     st.markdown("""
         <div style='text-align: center; font-size:28px'>
-            <b>Perbandingan Tingkat Ekonomi <br> Kota/Kab. di Jawa Barat (2017-2023) </b>
+            <b>Perbandingan Kemiskinan Kota/Kab. di Jawa Barat (2017-2023) </b>
         </div>
     """, unsafe_allow_html=True)   
     horizontal_line()
@@ -384,15 +386,15 @@ if selected == 'Home':
                 legend_html = """
                 - <b>Indeks Kesehatan, Pembangunan Manusia, Pendidikan & Pengeluaran</b>
                 <div style="display: flex; align-items: center">
-                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                    <div style="display: flex; align-items: center; margin-right: 14px;">
                         <div style="width: 15px; height: 15px; background-color: green; margin-right: 5px; margin-left: 30px"></div>
                         <div>80 <= Nilai <= 100</div>
                     </div>
-                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                    <div style="display: flex; align-items: center; margin-right: 14px;">
                         <div style="width: 15px; height: 15px; background-color: #0D590D; margin-right: 5px;"></div>
                         <div>70 <= Nilai < 80</div>
                     </div>
-                    <div style="display: flex; align-items: center; margin-right: 20px;">
+                    <div style="display: flex; align-items: center; margin-right: 14px;">
                         <div style="width: 15px; height: 15px; background-color: #EA9800; margin-right: 5px;"></div>
                         <div>60 <= Nilai < 70</div>
                     </div>
@@ -403,8 +405,7 @@ if selected == 'Home':
                 </div>
                 """
                 st.markdown(legend_html, unsafe_allow_html=True)
-
-                
+              
                 enter()
 
                 legend_html_kemiskinan = f"""
@@ -452,7 +453,27 @@ if selected == 'Home':
 
     with expl_matrix_col:
         with st.expander('Insight', expanded=True):
-            st.write('aABC')
+            st.markdown("""
+                        Berdasarkan keseluruhan nilai indeksnya, <br>
+                        <ul>
+                            <li>
+                                Tiga kota/kabupaten yang terbaik adalah Kota Bandung, Kota Cimahi, dan Kota Depok. <br> 
+                            </li>
+                            <li>
+                                Tiga kota/kabupaten yang terendah yaitu Kab. Cirebon, Kab. Garut, dan Kab. Indramayu, 
+                                harus lebih serius lagi dan belajar dari program-program yang diterapkan pada Kota/Kab. 
+                                yang memiliki keseluruhan nilai indeks yang Sangat Tinggi ataupun Tinggi<br>
+                            </li>
+                            <li>
+                                Kabupaten Bandung dan Bekasi juga dapat memperbaiki indeks pendidikannya. 
+                                Karena secara nilai indeks lainnya berada pada kategori Sangat Tinggi (kecuali indeks pengeluaran)    
+                            </li>
+                            <li>
+                                Bagi Kota Bekasi, Kota Bogor, Kota Cirebon, dan Kota Sukabumi, secara keseluruhan nilai indeksnya sudah merata pada kategori Sangat Tinggi. 
+                                Namun dapat memperbaiki nilai Indeks Keparahan Kemiskinan-nya lagi     
+                            </li>
+                        </ul>                        
+                        """, unsafe_allow_html=True)
     
     
     enter();enter();enter() 
